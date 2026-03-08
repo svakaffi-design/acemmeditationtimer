@@ -301,6 +301,8 @@
       </div>
     </div>
     <div id="statsContent" class="stats-loading">laster statistikk...</div>
+    <button id="testStatsBtn" style="margin-top:12px; background:none; border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.7); font-family:'Cormorant SC',serif; font-size:11px; letter-spacing:3px; padding:10px 16px; cursor:pointer; width:100%;">test registrer økt</button>
+    <div id="debugLog" style="font-family:monospace; font-size:11px; color:rgba(255,255,255,0.5); margin-top:8px; line-height:1.8; word-break:break-all;"></div>
   </div>
 </div>
 
@@ -406,33 +408,53 @@
   }
 
   async function recordSession(minutes) {
-    if (minutes < 1) return;
+    if (minutes < 1) { dbg('Avbrutt: minutter < 1 (' + minutes + ')'); return; }
     const key = todayKey();
     const ref = doc(db, "stats", key);
+    dbg('Skriver til stats/' + key + ' (' + minutes + ' min)...');
     setStatus('lagrer...', 'syncing');
     try {
       await runTransaction(db, async tx => {
         const snap = await tx.get(ref);
         if (snap.exists()) {
+          const prev = snap.data();
+          dbg('Eksisterende data: ' + JSON.stringify(prev));
           tx.update(ref, {
-            sessions:     (snap.data().sessions || 0) + 1,
-            totalMinutes: (snap.data().totalMinutes || 0) + minutes
+            sessions:     (prev.sessions || 0) + 1,
+            totalMinutes: (prev.totalMinutes || 0) + minutes
           });
         } else {
+          dbg('Ingen eksisterende data – oppretter ny');
           tx.set(ref, { sessions: 1, totalMinutes: minutes });
         }
       });
+      dbg('✓ Lagret!');
       setStatus('lagret', '');
       setTimeout(() => setStatus(''), 2000);
       delete statsCache[key];
       if (statsOffset === 0) await renderStats();
     } catch(e) {
+      dbg('✗ FEIL: ' + e.code + ' – ' + e.message);
       console.error('Stats write failed:', e);
       setStatus('feil: ' + e.code, 'error');
     }
   }
 
-  // Nav buttons
+  // ── Debug log ─────────────────────────────────────────
+  function dbg(msg) {
+    const el = document.getElementById('debugLog');
+    const time = new Date().toLocaleTimeString('no');
+    el.textContent = '[' + time + '] ' + msg + '\n' + el.textContent;
+    console.log('[ACEM]', msg);
+  }
+
+  // Test button
+  document.getElementById('testStatsBtn').addEventListener('click', () => {
+    dbg('Tester skriving til Firestore...');
+    recordSession(1);
+  });
+
+
   document.getElementById('statsPrev').addEventListener('click', () => {
     statsOffset--;
     renderStats();
