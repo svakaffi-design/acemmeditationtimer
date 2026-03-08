@@ -43,6 +43,7 @@
     font-family: 'Cormorant SC', serif;
     font-weight: 300; font-size: clamp(17px, 5vw, 26px);
     letter-spacing: clamp(6px, 2vw, 12px); color: rgba(255,255,255,0.9);
+    text-align: center; line-height: 1.7;
   }
 
   /* ── Status label ── */
@@ -306,7 +307,7 @@
 <div class="done-glow" id="doneGlow"></div>
 
 <div class="container">
-  <div class="title">ACEM Meditation Timer</div>
+  <div class="title">ACEM<br>Meditation Timer</div>
   <div class="label" id="stateLabel">velg varighet</div>
 
   <div class="ring-wrapper">
@@ -495,8 +496,8 @@
           tx.set(ref, { sessions: 1, totalMinutes: minutes });
         }
       });
-      delete statsCache[key]; // invalidate cache
-      if (statsOffset === 0) renderStats();
+      delete statsCache[key]; // invalidate cache so next render fetches fresh
+      if (statsOffset === 0) await renderStats(); // re-render today immediately
     } catch(e) {
       console.warn('Stats write failed', e);
     }
@@ -643,8 +644,9 @@
   // ── Timer ─────────────────────────────────────────────
   const CIRCUMFERENCE = 2 * Math.PI * 138;
   let totalSeconds = 0, remaining = 0, interval = null;
-  let running = false, editing = false, audioCtx = null;
+  let running = false, editing = false;
   let sessionRecorded = false;
+  let bellAudio = null; // preloaded on first user tap
 
   const display  = document.getElementById('timerDisplay');
   const editWrap = document.getElementById('timerEditWrap');
@@ -669,6 +671,13 @@
     ringProg.style.strokeDashoffset = CIRCUMFERENCE * (1-(total>0?rem/total:1));
   }
 
+  // Preload audio on first user interaction (required by iOS)
+  function preloadAudio() {
+    if (bellAudio) return;
+    bellAudio = new Audio('meditasjonslyd.mp3');
+    bellAudio.load();
+  }
+
   // Edit timer
   function enterEdit() {
     if (running||editing) return;
@@ -677,6 +686,7 @@
     editSec.value=String(remaining%60).padStart(2,'0');
     display.style.display='none'; editWrap.classList.add('active');
     editHint.style.opacity='0'; editMin.focus(); editMin.select();
+
   }
   function commitEdit() {
     if (!editing) return; editing=false;
@@ -736,13 +746,13 @@
   // Start
   startBtn.addEventListener('click',()=>{
     if(!remaining||running)return;
+    preloadAudio(); // unlock audio on iOS via user gesture
     running=true; sessionRecorded=false;
     display.classList.add('running','no-edit');
     ring.classList.add('visible');
     label.textContent='mediterer'; label.classList.add('active');
     startBtn.style.display='none'; pauseBtn.style.display=''; resetBtn.style.display='';
     editHint.style.opacity='0';
-    if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
     showQuote();
     interval=setInterval(tick,1000);
   });
@@ -794,10 +804,11 @@
     showQuote(); playBell();
   }
 
-  // Bell — plays meditasjonslyd.mp3 from the same folder
+  // Bell — plays preloaded meditasjonslyd.mp3
   function playBell() {
-    const audio = new Audio('meditasjonslyd.mp3');
-    audio.play().catch(e => console.warn('Kunne ikke spille av lyd:', e));
+    if (!bellAudio) { bellAudio = new Audio('meditasjonslyd.mp3'); }
+    bellAudio.currentTime = 0;
+    bellAudio.play().catch(e => console.warn('Lyd feilet:', e));
   }
   // ── PWA Service Worker ────────────────────────────────
   if ('serviceWorker' in navigator) {
