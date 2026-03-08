@@ -29,82 +29,55 @@
   }
 
   .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 36px;
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    max-width: 620px;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 36px;
+    position: relative; z-index: 1;
+    width: 100%; max-width: 620px;
     padding: 0 24px;
   }
 
-  /* ── Title ── */
   .title {
     font-family: 'Cormorant SC', serif;
-    font-weight: 300;
-    font-size: 22px;
-    letter-spacing: 10px;
-    color: rgba(255,255,255,0.45);
+    font-weight: 300; font-size: 22px;
+    letter-spacing: 10px; color: rgba(255,255,255,0.45);
   }
 
-  /* ── Status label ── */
   .label {
     font-family: 'Cormorant SC', serif;
-    font-weight: 300;
-    font-size: 11px;
-    letter-spacing: 6px;
-    color: rgba(255,255,255,0.25);
-    text-transform: uppercase;
-    transition: color 0.8s ease;
-    min-height: 16px;
+    font-weight: 300; font-size: 11px;
+    letter-spacing: 6px; color: rgba(255,255,255,0.25);
+    text-transform: uppercase; transition: color 0.8s ease; min-height: 16px;
   }
   .label.active { color: rgba(255,255,255,0.45); }
 
-  /* ── Ring & timer ── */
   .ring-wrapper {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
+    position: relative; display: flex;
+    flex-direction: column; align-items: center; gap: 14px;
   }
 
   svg.ring {
-    position: absolute;
-    transform: rotate(-90deg);
-    opacity: 0;
-    transition: opacity 1s ease;
+    position: absolute; transform: rotate(-90deg);
+    opacity: 0; transition: opacity 1s ease;
   }
   svg.ring.visible { opacity: 1; }
   .ring-track { fill: none; stroke: rgba(255,255,255,0.05); }
   .ring-progress {
-    fill: none; stroke: rgba(255,255,255,0.18);
-    stroke-linecap: round;
+    fill: none; stroke: rgba(255,255,255,0.18); stroke-linecap: round;
     transition: stroke-dashoffset 1s linear, stroke 0.5s ease;
   }
   .ring-progress.done { stroke: rgba(255,255,255,0.5); }
 
   .timer-display {
     font-family: 'Cormorant Garamond', serif;
-    font-weight: 300;
-    font-size: clamp(80px, 18vw, 160px);
-    letter-spacing: -2px;
-    line-height: 1;
-    color: #fff;
-    cursor: text;
-    transition: color 0.3s ease;
-    position: relative;
+    font-weight: 300; font-size: clamp(80px, 18vw, 160px);
+    letter-spacing: -2px; line-height: 1; color: #fff;
+    cursor: text; transition: color 0.3s ease; position: relative;
   }
   .timer-display:hover:not(.no-edit) { color: rgba(255,255,255,0.65); }
   .timer-display.running::after {
-    content: '';
-    position: absolute;
-    bottom: -8px; left: 50%;
-    transform: translateX(-50%);
-    width: 1px; height: 40px;
-    background: rgba(255,255,255,0.15);
+    content: ''; position: absolute;
+    bottom: -8px; left: 50%; transform: translateX(-50%);
+    width: 1px; height: 40px; background: rgba(255,255,255,0.15);
   }
 
   .timer-edit-wrap { display: none; align-items: center; }
@@ -112,47 +85,37 @@
 
   .time-part {
     font-family: 'Cormorant Garamond', serif;
-    font-weight: 300;
-    font-size: clamp(80px, 18vw, 160px);
-    letter-spacing: -2px;
-    line-height: 1;
+    font-weight: 300; font-size: clamp(80px, 18vw, 160px);
+    letter-spacing: -2px; line-height: 1;
     background: none; border: none;
     border-bottom: 1px solid rgba(255,255,255,0.25);
     color: #fff; text-align: center; outline: none;
-    caret-color: rgba(255,255,255,0.6);
-    width: 2.2ch;
+    caret-color: rgba(255,255,255,0.6); width: 2.2ch;
   }
   .time-sep {
     font-family: 'Cormorant Garamond', serif;
-    font-weight: 300;
-    font-size: clamp(80px, 18vw, 160px);
-    color: rgba(255,255,255,0.35);
-    line-height: 1; padding: 0 2px; margin-bottom: 6px;
+    font-weight: 300; font-size: clamp(80px, 18vw, 160px);
+    color: rgba(255,255,255,0.35); line-height: 1;
+    padding: 0 2px; margin-bottom: 6px;
   }
 
   .edit-hint {
     font-family: 'Cormorant SC', serif;
     font-size: 10px; letter-spacing: 4px;
-    color: rgba(255,255,255,0.15);
-    transition: opacity 0.4s ease;
+    color: rgba(255,255,255,0.15); transition: opacity 0.4s ease;
   }
 
-  /* ── Quote ── */
   .quote-area {
-    text-align: center;
-    min-height: 66px;
+    text-align: center; min-height: 66px;
     display: flex; flex-direction: column;
     align-items: center; gap: 8px;
-    opacity: 0;
-    transition: opacity 1.4s ease;
+    opacity: 0; transition: opacity 1.4s ease;
   }
   .quote-area.visible { opacity: 1; }
-
   .quote-text {
     font-family: 'Cormorant Garamond', serif;
     font-weight: 300; font-style: italic;
-    font-size: 17px; line-height: 1.65;
-    color: rgba(255,255,255,0.5);
+    font-size: 17px; line-height: 1.65; color: rgba(255,255,255,0.5);
   }
   .quote-author {
     font-family: 'Cormorant SC', serif;
@@ -160,24 +123,19 @@
     letter-spacing: 4px; color: rgba(255,255,255,0.2);
   }
 
-  /* ── Presets ── */
   .presets {
-    display: flex; gap: 20px;
-    flex-wrap: wrap; justify-content: center;
-    max-width: 500px;
+    display: flex; gap: 20px; flex-wrap: wrap;
+    justify-content: center; max-width: 500px;
   }
   .preset-btn {
-    background: none; border: none;
-    color: rgba(255,255,255,0.2);
-    font-family: 'Cormorant SC', serif;
-    font-size: 13px; letter-spacing: 3px;
-    cursor: pointer; padding: 6px 4px;
+    background: none; border: none; color: rgba(255,255,255,0.2);
+    font-family: 'Cormorant SC', serif; font-size: 13px;
+    letter-spacing: 3px; cursor: pointer; padding: 6px 4px;
     transition: color 0.4s ease; position: relative;
   }
   .preset-btn::after {
-    content: ''; position: absolute;
-    bottom: 0; left: 0; width: 0; height: 1px;
-    background: rgba(255,255,255,0.4);
+    content: ''; position: absolute; bottom: 0; left: 0;
+    width: 0; height: 1px; background: rgba(255,255,255,0.4);
     transition: width 0.4s ease;
   }
   .preset-btn:hover { color: rgba(255,255,255,0.6); }
@@ -185,14 +143,11 @@
   .preset-btn.selected { color: rgba(255,255,255,0.85); }
   .preset-btn.selected::after { width: 100%; background: rgba(255,255,255,0.6); }
 
-  /* ── Controls ── */
   .controls { display: flex; gap: 32px; align-items: center; }
   .ctrl-btn {
-    background: none; border: none;
-    color: rgba(255,255,255,0.3);
-    font-family: 'Cormorant SC', serif;
-    font-size: 11px; letter-spacing: 5px;
-    cursor: pointer; padding: 8px 0;
+    background: none; border: none; color: rgba(255,255,255,0.3);
+    font-family: 'Cormorant SC', serif; font-size: 11px;
+    letter-spacing: 5px; cursor: pointer; padding: 8px 0;
     transition: color 0.4s ease; text-transform: uppercase;
   }
   .ctrl-btn:hover { color: rgba(255,255,255,0.7); }
@@ -200,86 +155,80 @@
   .ctrl-btn.primary:hover { color: #fff; }
   .ctrl-btn:disabled { opacity: 0.2; pointer-events: none; }
 
-  /* ── Edit quotes button ── */
+  /* Status indicator */
+  .sync-status {
+    position: fixed; bottom: 24px; left: 28px;
+    font-family: 'Cormorant SC', serif;
+    font-size: 10px; letter-spacing: 3px;
+    color: rgba(255,255,255,0.12); transition: color 0.4s ease;
+  }
+  .sync-status.syncing { color: rgba(255,255,255,0.3); }
+  .sync-status.error   { color: rgba(180,80,80,0.5); }
+
   .edit-quotes-btn {
     position: fixed; bottom: 24px; right: 28px;
     background: none; border: none;
-    font-family: 'Cormorant SC', serif;
-    font-size: 10px; letter-spacing: 4px;
-    color: rgba(255,255,255,0.12);
+    font-family: 'Cormorant SC', serif; font-size: 10px;
+    letter-spacing: 4px; color: rgba(255,255,255,0.12);
     cursor: pointer; text-transform: uppercase;
     transition: color 0.3s ease;
   }
   .edit-quotes-btn:hover { color: rgba(255,255,255,0.4); }
 
-  /* ── Quote editor modal ── */
+  /* Modal */
   .modal-overlay {
     display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.92);
-    z-index: 100; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.92); z-index: 100;
+    align-items: center; justify-content: center;
   }
   .modal-overlay.open { display: flex; }
 
   .modal {
     background: #0d0d0d;
     border: 1px solid rgba(255,255,255,0.08);
-    width: min(680px, 94vw);
-    max-height: 80vh;
+    width: min(680px, 94vw); max-height: 80vh;
     display: flex; flex-direction: column;
-    padding: 36px;
-    gap: 20px;
+    padding: 36px; gap: 20px;
   }
 
   .modal-title {
     font-family: 'Cormorant SC', serif;
-    font-size: 13px; letter-spacing: 6px;
-    color: rgba(255,255,255,0.5);
-    text-transform: uppercase;
+    font-size: 13px; letter-spacing: 6px; color: rgba(255,255,255,0.5);
   }
-
   .modal-desc {
     font-family: 'Cormorant Garamond', serif;
     font-size: 14px; font-style: italic;
-    color: rgba(255,255,255,0.3);
-    line-height: 1.6;
+    color: rgba(255,255,255,0.3); line-height: 1.6;
   }
 
   .quotes-textarea {
-    flex: 1;
-    background: rgba(255,255,255,0.03);
+    flex: 1; background: rgba(255,255,255,0.03);
     border: 1px solid rgba(255,255,255,0.08);
     color: rgba(255,255,255,0.7);
     font-family: 'Cormorant Garamond', serif;
     font-size: 14px; line-height: 1.8;
     padding: 16px; resize: none; outline: none;
-    min-height: 300px;
-    overflow-y: auto;
+    min-height: 300px; overflow-y: auto;
   }
   .quotes-textarea::placeholder { color: rgba(255,255,255,0.15); }
   .quotes-textarea:focus { border-color: rgba(255,255,255,0.18); }
 
-  .modal-actions { display: flex; gap: 20px; justify-content: flex-end; }
-
+  .modal-actions { display: flex; gap: 20px; justify-content: flex-end; align-items: center; }
   .modal-btn {
     background: none; border: none;
-    font-family: 'Cormorant SC', serif;
-    font-size: 11px; letter-spacing: 5px;
-    cursor: pointer; padding: 8px 0;
+    font-family: 'Cormorant SC', serif; font-size: 11px;
+    letter-spacing: 5px; cursor: pointer; padding: 8px 0;
     text-transform: uppercase; transition: color 0.3s ease;
   }
   .modal-btn.cancel { color: rgba(255,255,255,0.25); }
   .modal-btn.cancel:hover { color: rgba(255,255,255,0.5); }
   .modal-btn.save { color: rgba(255,255,255,0.6); }
   .modal-btn.save:hover { color: #fff; }
-
   .modal-count {
-    font-family: 'Cormorant SC', serif;
-    font-size: 10px; letter-spacing: 3px;
-    color: rgba(255,255,255,0.18);
-    align-self: center; margin-right: auto;
+    font-family: 'Cormorant SC', serif; font-size: 10px;
+    letter-spacing: 3px; color: rgba(255,255,255,0.18); margin-right: auto;
   }
 
-  /* ── Done glow ── */
   .done-glow {
     position: fixed; inset: 0;
     background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(255,255,255,0.03) 0%, transparent 70%);
@@ -287,10 +236,7 @@
   }
   .done-glow.show { opacity: 1; }
 
-  @keyframes pulse {
-    0%, 100% { opacity: 0.55; }
-    50% { opacity: 1; }
-  }
+  @keyframes pulse { 0%,100%{opacity:.55} 50%{opacity:1} }
   .pulsing { animation: pulse 3s ease-in-out infinite; }
 </style>
 </head>
@@ -341,6 +287,7 @@
   </div>
 </div>
 
+<div class="sync-status" id="syncStatus"></div>
 <button class="edit-quotes-btn" id="editQuotesBtn">rediger sitater</button>
 
 <!-- Quote editor modal -->
@@ -348,25 +295,42 @@
   <div class="modal">
     <div class="modal-title">Sitat-bibliotek</div>
     <div class="modal-desc">
-      Ett sitat per linje. Skill sitat og forfatter med en bindestrek: <br>
+      Ett sitat per linje. Skill sitat og forfatter med en tankestrek:<br>
       <em>Stillhet er ikke fraværet av noe — Thich Nhat Hanh</em><br>
-      Linjer uten bindestrek vises uten forfatter.
+      Lagres i skyen — alle brukere ser samme sitat-base.
     </div>
-    <textarea class="quotes-textarea" id="quotesTextarea" spellcheck="false"></textarea>
+    <textarea class="quotes-textarea" id="quotesTextarea" spellcheck="false"
+      placeholder="Skriv inn sitater her, ett per linje..."></textarea>
     <div class="modal-actions">
       <span class="modal-count" id="modalCount"></span>
       <button class="modal-btn cancel" id="modalCancel">avbryt</button>
-      <button class="modal-btn save" id="modalSave">lagre</button>
+      <button class="modal-btn save" id="modalSave">lagre til skyen</button>
     </div>
   </div>
 </div>
 
-<script>
-  // ── Constants ─────────────────────────────────────────
-  const CIRCUMFERENCE = 2 * Math.PI * 138;
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp }                      from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc, onSnapshot }
+    from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
-  // ── Default quotes ────────────────────────────────────
-  const DEFAULT_QUOTES = [
+  // ── Firebase config ───────────────────────────────────
+  const firebaseConfig = {
+    apiKey:            "AIzaSyBDHMcNLpDgu0Z5Qjr76C3HAx5ATrrKyPI",
+    authDomain:        "acemmeditationtimer.firebaseapp.com",
+    projectId:         "acemmeditationtimer",
+    storageBucket:     "acemmeditationtimer.firebasestorage.app",
+    messagingSenderId: "6885818187",
+    appId:             "1:6885818187:web:1f4c7f302a204af566f2ce"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+  const QUOTES_DOC = doc(db, "config", "quotes");
+
+  // ── Default quotes (used if Firestore is empty) ───────
+  const DEFAULT_LINES = [
     "Du kan ikke stoppe bølgene, men du kan lære å surfe — Jon Kabat-Zinn",
     "Det eneste øyeblikket du noen gang vil ha er dette — Thich Nhat Hanh",
     "Still sinnet, og verden vil ordne seg selv — Lao Tzu",
@@ -394,48 +358,55 @@
     "Jo mer rolig et menneske er, desto større er dets suksess — James Allen",
   ];
 
-  // ── Quote storage ─────────────────────────────────────
-  function loadQuotes() {
-    try {
-      const raw = localStorage.getItem('acem_quotes');
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      }
-    } catch(e) {}
-    return DEFAULT_QUOTES.slice();
-  }
-
-  function saveQuotes(lines) {
-    try { localStorage.setItem('acem_quotes', JSON.stringify(lines)); } catch(e) {}
-  }
-
-  function parseQuotes(lines) {
-    return lines
-      .map(l => l.trim())
-      .filter(l => l.length > 0)
-      .map(l => {
-        const dash = l.lastIndexOf(' — ');
-        if (dash !== -1) return { text: l.slice(0, dash).trim(), author: l.slice(dash + 3).trim() };
-        const dash2 = l.lastIndexOf(' - ');
-        if (dash2 !== -1) return { text: l.slice(0, dash2).trim(), author: l.slice(dash2 + 3).trim() };
-        return { text: l, author: '' };
-      });
-  }
-
-  let QUOTES = parseQuotes(loadQuotes());
+  // ── Quote state ───────────────────────────────────────
+  let QUOTES = [];
   let lastQuoteIndex = -1;
+
+  function parseLines(lines) {
+    return lines.map(l => l.trim()).filter(l => l).map(l => {
+      const i = l.lastIndexOf(' — ');
+      if (i !== -1) return { text: l.slice(0, i).trim(), author: l.slice(i + 3).trim() };
+      const j = l.lastIndexOf(' - ');
+      if (j !== -1) return { text: l.slice(0, j).trim(), author: l.slice(j + 3).trim() };
+      return { text: l, author: '' };
+    });
+  }
+
+  function setStatus(msg, cls) {
+    const el = document.getElementById('syncStatus');
+    el.textContent = msg; el.className = 'sync-status' + (cls ? ' ' + cls : '');
+  }
+
+  // ── Load quotes from Firestore (live listener) ────────
+  onSnapshot(QUOTES_DOC, snap => {
+    if (snap.exists()) {
+      const lines = snap.data().lines || [];
+      QUOTES = parseLines(lines);
+      setStatus('');
+    } else {
+      // First run: seed defaults into Firestore
+      setDoc(QUOTES_DOC, { lines: DEFAULT_LINES }).catch(() => {});
+      QUOTES = parseLines(DEFAULT_LINES);
+    }
+    showQuote();
+  }, () => {
+    // Offline fallback
+    if (QUOTES.length === 0) QUOTES = parseLines(DEFAULT_LINES);
+    setStatus('frakoblet', 'error');
+    showQuote();
+  });
 
   function showQuote() {
     if (QUOTES.length === 0) return;
     let idx;
-    do { idx = Math.floor(Math.random() * QUOTES.length); } while (QUOTES.length > 1 && idx === lastQuoteIndex);
+    do { idx = Math.floor(Math.random() * QUOTES.length); }
+    while (QUOTES.length > 1 && idx === lastQuoteIndex);
     lastQuoteIndex = idx;
     const q = QUOTES[idx];
     const area = document.getElementById('quoteArea');
     area.classList.remove('visible');
     setTimeout(() => {
-      document.getElementById('quoteText').textContent = '\u201C' + q.text + '\u201D';
+      document.getElementById('quoteText').textContent   = '\u201C' + q.text + '\u201D';
       document.getElementById('quoteAuthor').textContent = q.author ? '— ' + q.author : '';
       area.classList.add('visible');
     }, 500);
@@ -453,52 +424,61 @@
   const modalSave     = document.getElementById('modalSave');
   const modalCount    = document.getElementById('modalCount');
 
-  function openModal() {
-    const lines = loadQuotes();
-    quotesTA.value = lines.join('\n');
-    updateCount();
-    modalOverlay.classList.add('open');
-    setTimeout(() => quotesTA.focus(), 50);
-  }
-
   function updateCount() {
     const n = quotesTA.value.split('\n').filter(l => l.trim()).length;
     modalCount.textContent = n + ' sitater';
   }
 
-  quotesTA.addEventListener('input', updateCount);
+  const ADMIN_PASSWORD = "maharishi";
 
-  editQuotesBtn.addEventListener('click', openModal);
-
-  modalCancel.addEventListener('click', () => modalOverlay.classList.remove('open'));
-
-  modalOverlay.addEventListener('click', e => {
-    if (e.target === modalOverlay) modalOverlay.classList.remove('open');
+  editQuotesBtn.addEventListener('click', async () => {
+    const pwd = prompt('Administratorpassord:');
+    if (pwd === null) return;
+    if (pwd !== ADMIN_PASSWORD) {
+      alert('Feil passord.');
+      return;
+    }
+    setStatus('henter...', 'syncing');
+    try {
+      const snap = await getDoc(QUOTES_DOC);
+      const lines = snap.exists() ? (snap.data().lines || []) : DEFAULT_LINES;
+      quotesTA.value = lines.join('\n');
+    } catch(e) {
+      quotesTA.value = QUOTES.map(q => q.author ? q.text + ' — ' + q.author : q.text).join('\n');
+    }
+    updateCount();
+    setStatus('');
+    modalOverlay.classList.add('open');
+    setTimeout(() => quotesTA.focus(), 50);
   });
 
-  modalSave.addEventListener('click', () => {
+  quotesTA.addEventListener('input', updateCount);
+  modalCancel.addEventListener('click', () => modalOverlay.classList.remove('open'));
+  modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) modalOverlay.classList.remove('open'); });
+
+  modalSave.addEventListener('click', async () => {
     const lines = quotesTA.value.split('\n').filter(l => l.trim());
     if (lines.length === 0) return;
-    saveQuotes(lines);
-    QUOTES = parseQuotes(lines);
-    lastQuoteIndex = -1;
+    setStatus('lagrer...', 'syncing');
     modalOverlay.classList.remove('open');
-    showQuote();
-  });
-
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && modalOverlay.classList.contains('open')) {
-      modalOverlay.classList.remove('open');
+    try {
+      await setDoc(QUOTES_DOC, { lines });
+      setStatus('lagret', '');
+      setTimeout(() => setStatus(''), 2000);
+    } catch(e) {
+      setStatus('feil ved lagring', 'error');
     }
   });
 
-  // ── Timer state ───────────────────────────────────────
-  let totalSeconds = 0;
-  let remaining    = 0;
-  let interval     = null;
-  let running      = false;
-  let editing      = false;
-  let audioCtx     = null;
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && modalOverlay.classList.contains('open'))
+      modalOverlay.classList.remove('open');
+  });
+
+  // ── Timer ─────────────────────────────────────────────
+  const CIRCUMFERENCE = 2 * Math.PI * 138;
+  let totalSeconds = 0, remaining = 0, interval = null;
+  let running = false, editing = false, audioCtx = null;
 
   const display   = document.getElementById('timerDisplay');
   const editWrap  = document.getElementById('timerEditWrap');
@@ -513,199 +493,173 @@
   const ringProg  = document.getElementById('ringProgress');
   const doneGlow  = document.getElementById('doneGlow');
 
-  ringProg.style.strokeDasharray = CIRCUMFERENCE;
+  ringProg.style.strokeDasharray  = CIRCUMFERENCE;
   ringProg.style.strokeDashoffset = 0;
 
-  // Show quote on load
-  showQuote();
-
-  // ── Helpers ───────────────────────────────────────────
   function fmt(s) {
-    const m = Math.floor(s / 60), sec = s % 60;
-    return String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
+    return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
   }
-
   function updateRing(rem, total) {
-    const frac = total > 0 ? rem / total : 1;
-    ringProg.style.strokeDashoffset = CIRCUMFERENCE * (1 - frac);
+    ringProg.style.strokeDashoffset = CIRCUMFERENCE * (1 - (total > 0 ? rem/total : 1));
   }
 
-  // ── Edit timer ────────────────────────────────────────
+  // Edit timer
   function enterEdit() {
     if (running || editing) return;
     editing = true;
-    editMin.value = String(Math.floor(remaining / 60)).padStart(2, '0');
-    editSec.value = String(remaining % 60).padStart(2, '0');
+    editMin.value = String(Math.floor(remaining/60)).padStart(2,'0');
+    editSec.value = String(remaining%60).padStart(2,'0');
     display.style.display = 'none';
     editWrap.classList.add('active');
     editHint.style.opacity = '0';
     editMin.focus(); editMin.select();
   }
-
   function commitEdit() {
-    if (!editing) return;
-    editing = false;
-    const m = Math.max(0, Math.min(99, parseInt(editMin.value) || 0));
-    const s = Math.max(0, Math.min(59, parseInt(editSec.value) || 0));
-    const total = m * 60 + s;
-    editWrap.classList.remove('active');
-    display.style.display = '';
+    if (!editing) return; editing = false;
+    const m = Math.max(0, Math.min(99, parseInt(editMin.value)||0));
+    const s = Math.max(0, Math.min(59, parseInt(editSec.value)||0));
+    const total = m*60+s;
+    editWrap.classList.remove('active'); display.style.display = '';
     editHint.style.opacity = '1';
     if (total > 0) {
       totalSeconds = total; remaining = total;
-      display.textContent = fmt(remaining);
-      startBtn.disabled = false;
-      label.textContent = m + (s > 0 ? ':' + String(s).padStart(2,'0') : '') + ' minutter';
+      display.textContent = fmt(remaining); startBtn.disabled = false;
+      label.textContent = m + (s > 0 ? ':'+String(s).padStart(2,'0') : '') + ' minutter';
       document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('selected'));
       ring.classList.remove('visible'); ringProg.classList.remove('done');
-      ringProg.style.strokeDashoffset = 0;
-      doneGlow.classList.remove('show');
-      display.classList.remove('pulsing', 'no-edit');
-      resetBtn.style.display = 'none'; pauseBtn.style.display = 'none'; startBtn.style.display = '';
-    } else {
-      display.textContent = fmt(remaining);
-    }
+      ringProg.style.strokeDashoffset = 0; doneGlow.classList.remove('show');
+      display.classList.remove('pulsing','no-edit');
+      resetBtn.style.display='none'; pauseBtn.style.display='none'; startBtn.style.display='';
+    } else { display.textContent = fmt(remaining); }
   }
-
   function cancelEdit() {
-    editing = false;
-    editWrap.classList.remove('active');
-    display.style.display = '';
-    editHint.style.opacity = '1';
+    editing = false; editWrap.classList.remove('active');
+    display.style.display = ''; editHint.style.opacity = '1';
     display.textContent = fmt(remaining);
   }
 
   display.addEventListener('click', enterEdit);
   editMin.addEventListener('input', () => {
-    editMin.value = editMin.value.replace(/\D/g, '');
+    editMin.value = editMin.value.replace(/\D/g,'');
     if (editMin.value.length === 2) { editSec.focus(); editSec.select(); }
   });
-  editSec.addEventListener('input', () => { editSec.value = editSec.value.replace(/\D/g, ''); });
+  editSec.addEventListener('input', () => { editSec.value = editSec.value.replace(/\D/g,''); });
   editMin.addEventListener('keydown', e => {
-    if (e.key === ':' || e.key === 'Tab') { e.preventDefault(); editSec.focus(); editSec.select(); }
-    if (e.key === 'Enter') commitEdit();
-    if (e.key === 'Escape') cancelEdit();
+    if (e.key===':'||e.key==='Tab'){e.preventDefault();editSec.focus();editSec.select();}
+    if (e.key==='Enter') commitEdit(); if (e.key==='Escape') cancelEdit();
   });
   editSec.addEventListener('keydown', e => {
-    if (e.key === 'Enter') commitEdit();
-    if (e.key === 'Escape') cancelEdit();
-    if (e.key === 'Backspace' && editSec.value === '') { editMin.focus(); editMin.select(); }
+    if (e.key==='Enter') commitEdit(); if (e.key==='Escape') cancelEdit();
+    if (e.key==='Backspace'&&editSec.value===''){editMin.focus();editMin.select();}
   });
-  editMin.addEventListener('blur', () => setTimeout(() => { if (editing && document.activeElement !== editSec) commitEdit(); }, 120));
-  editSec.addEventListener('blur', () => setTimeout(() => { if (editing && document.activeElement !== editMin) commitEdit(); }, 120));
+  editMin.addEventListener('blur', () => setTimeout(()=>{ if(editing&&document.activeElement!==editSec) commitEdit(); },120));
+  editSec.addEventListener('blur', () => setTimeout(()=>{ if(editing&&document.activeElement!==editMin) commitEdit(); },120));
 
-  // ── Presets ───────────────────────────────────────────
+  // Presets
   document.querySelectorAll('.preset-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       if (running) return;
-      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('selected'));
+      document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('selected'));
       btn.classList.add('selected');
       const mins = parseInt(btn.dataset.min);
-      totalSeconds = mins * 60; remaining = totalSeconds;
-      display.textContent = fmt(remaining);
-      startBtn.disabled = false;
+      totalSeconds = mins*60; remaining = totalSeconds;
+      display.textContent = fmt(remaining); startBtn.disabled = false;
       label.textContent = mins + ' minutter';
       ring.classList.remove('visible'); ringProg.classList.remove('done');
-      ringProg.style.strokeDashoffset = 0;
-      doneGlow.classList.remove('show');
-      display.classList.remove('pulsing', 'no-edit');
-      resetBtn.style.display = 'none'; pauseBtn.style.display = 'none'; startBtn.style.display = '';
-      editHint.style.opacity = '1';
+      ringProg.style.strokeDashoffset = 0; doneGlow.classList.remove('show');
+      display.classList.remove('pulsing','no-edit');
+      resetBtn.style.display='none'; pauseBtn.style.display='none'; startBtn.style.display='';
+      editHint.style.opacity='1';
     });
   });
 
-  // ── Start ─────────────────────────────────────────────
+  // Start
   startBtn.addEventListener('click', () => {
-    if (!remaining || running) return;
+    if (!remaining||running) return;
     running = true;
-    display.classList.add('running', 'no-edit');
+    display.classList.add('running','no-edit');
     ring.classList.add('visible');
-    label.textContent = 'mediterer'; label.classList.add('active');
-    startBtn.style.display = 'none'; pauseBtn.style.display = ''; resetBtn.style.display = '';
-    editHint.style.opacity = '0';
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    label.textContent='mediterer'; label.classList.add('active');
+    startBtn.style.display='none'; pauseBtn.style.display=''; resetBtn.style.display='';
+    editHint.style.opacity='0';
+    if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
     showQuote();
     interval = setInterval(tick, 1000);
   });
 
-  // ── Pause ─────────────────────────────────────────────
+  // Pause
   pauseBtn.addEventListener('click', () => {
     if (!running) {
-      running = true; pauseBtn.textContent = 'pause';
-      label.textContent = 'mediterer';
-      interval = setInterval(tick, 1000);
+      running=true; pauseBtn.textContent='pause'; label.textContent='mediterer';
+      interval=setInterval(tick,1000);
     } else {
-      running = false; clearInterval(interval);
-      pauseBtn.textContent = 'fortsett'; label.textContent = 'pause';
+      running=false; clearInterval(interval);
+      pauseBtn.textContent='fortsett'; label.textContent='pause';
     }
   });
 
-  // ── Reset ─────────────────────────────────────────────
+  // Reset
   resetBtn.addEventListener('click', () => {
-    clearInterval(interval); running = false;
-    remaining = totalSeconds;
-    display.textContent = fmt(remaining);
-    display.classList.remove('running', 'pulsing', 'no-edit');
+    clearInterval(interval); running=false; remaining=totalSeconds;
+    display.textContent=fmt(remaining);
+    display.classList.remove('running','pulsing','no-edit');
     ring.classList.remove('visible'); ringProg.classList.remove('done');
-    ringProg.style.strokeDashoffset = 0; doneGlow.classList.remove('show');
-    label.textContent = totalSeconds / 60 + ' minutter'; label.classList.remove('active');
-    startBtn.style.display = ''; startBtn.disabled = false;
-    pauseBtn.style.display = 'none'; pauseBtn.textContent = 'pause';
-    resetBtn.style.display = 'none';
-    editHint.style.opacity = '1';
+    ringProg.style.strokeDashoffset=0; doneGlow.classList.remove('show');
+    label.textContent=totalSeconds/60+' minutter'; label.classList.remove('active');
+    startBtn.style.display=''; startBtn.disabled=false;
+    pauseBtn.style.display='none'; pauseBtn.textContent='pause';
+    resetBtn.style.display='none'; editHint.style.opacity='1';
     hideQuote();
   });
 
-  // ── Tick ──────────────────────────────────────────────
+  // Tick
   function tick() {
     remaining--;
     display.textContent = fmt(remaining);
     updateRing(remaining, totalSeconds);
-    if (remaining <= 0) { clearInterval(interval); running = false; finish(); }
+    if (remaining <= 0) { clearInterval(interval); running=false; finish(); }
   }
 
   function finish() {
-    display.textContent = '00:00';
-    label.textContent = 'fullført';
+    display.textContent='00:00'; label.textContent='fullført';
     display.classList.remove('running'); display.classList.add('pulsing');
     ringProg.classList.add('done'); doneGlow.classList.add('show');
-    pauseBtn.style.display = 'none';
-    showQuote();
-    playBell();
+    pauseBtn.style.display='none';
+    showQuote(); playBell();
   }
 
-  // ── Bell ──────────────────────────────────────────────
+  // Bell
   function strikeBell(t) {
-    const freqs = [220, 440, 659, 880], decays = [4.5, 3.2, 2.4, 1.8];
-    freqs.forEach((freq, i) => {
-      const osc = audioCtx.createOscillator(), gain = audioCtx.createGain(), filter = audioCtx.createBiquadFilter();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, t);
-      osc.frequency.exponentialRampToValueAtTime(freq * 0.998, t + decays[i]);
-      filter.type = 'lowpass'; filter.frequency.value = 2000;
-      const vol = i === 0 ? 0.22 : 0.08 / i;
-      gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(vol, t + 0.01);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + decays[i]);
-      osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
-      osc.start(t); osc.stop(t + decays[i]);
+    const freqs=[220,440,659,880], decays=[4.5,3.2,2.4,1.8];
+    freqs.forEach((freq,i)=>{
+      const osc=audioCtx.createOscillator(), gain=audioCtx.createGain(), f=audioCtx.createBiquadFilter();
+      osc.type='sine';
+      osc.frequency.setValueAtTime(freq,t);
+      osc.frequency.exponentialRampToValueAtTime(freq*0.998,t+decays[i]);
+      f.type='lowpass'; f.frequency.value=2000;
+      const vol=i===0?0.22:0.08/i;
+      gain.gain.setValueAtTime(0,t);
+      gain.gain.linearRampToValueAtTime(vol,t+0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001,t+decays[i]);
+      osc.connect(f); f.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(t); osc.stop(t+decays[i]);
     });
-    const et = t + 1.5;
-    [220, 440].forEach((freq, i) => {
-      const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
-      osc.type = 'sine'; osc.frequency.setValueAtTime(freq, et);
-      gain.gain.setValueAtTime(0, et);
-      gain.gain.linearRampToValueAtTime(i === 0 ? 0.1 : 0.04, et + 0.015);
-      gain.gain.exponentialRampToValueAtTime(0.0001, et + 3);
+    const et=t+1.5;
+    [220,440].forEach((freq,i)=>{
+      const osc=audioCtx.createOscillator(), gain=audioCtx.createGain();
+      osc.type='sine'; osc.frequency.setValueAtTime(freq,et);
+      gain.gain.setValueAtTime(0,et);
+      gain.gain.linearRampToValueAtTime(i===0?0.1:0.04,et+0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001,et+3);
       osc.connect(gain); gain.connect(audioCtx.destination);
-      osc.start(et); osc.stop(et + 3);
+      osc.start(et); osc.stop(et+3);
     });
   }
 
   function playBell() {
     if (!audioCtx) return;
-    const now = audioCtx.currentTime;
-    strikeBell(now); strikeBell(now + 3); strikeBell(now + 6);
+    const now=audioCtx.currentTime;
+    strikeBell(now); strikeBell(now+3); strikeBell(now+6);
   }
 </script>
 </body>
