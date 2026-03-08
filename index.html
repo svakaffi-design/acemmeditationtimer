@@ -224,64 +224,8 @@
   .sync-status.syncing { color: rgba(255,255,255,0.9); }
   .sync-status.error   { color: rgba(200,80,80,0.7); }
 
-  .edit-quotes-btn {
-    position: fixed; bottom: 20px; right: 20px;
-    background: none; border: none;
-    font-family: 'Cormorant SC', serif; font-size: clamp(10px, 2.5vw, 12px);
-    letter-spacing: 4px; color: rgba(255,255,255,0.9);
-    cursor: pointer; text-transform: uppercase; transition: color 0.3s ease;
-    padding: 8px; min-height: 44px;
-  }
-  .edit-quotes-btn:hover { color: rgba(255,255,255,0.9); }
 
-  /* ── Modals ── */
-  .modal-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.93); z-index: 100;
-    align-items: center; justify-content: center; padding: 16px;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: #0d0d0d; border: 1px solid rgba(255,255,255,0.08);
-    width: min(680px, 100%); max-height: 85vh;
-    display: flex; flex-direction: column;
-    padding: clamp(20px, 5vw, 36px); gap: 16px;
-  }
-  .modal-title {
-    font-family: 'Cormorant SC', serif;
-    font-size: clamp(14px, 3.5vw, 16px); letter-spacing: 6px; color: rgba(255,255,255,0.9);
-  }
-  .modal-desc {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(15px, 3.5vw, 17px); font-style: italic;
-    color: rgba(255,255,255,0.9); line-height: 1.65;
-  }
-  .quotes-textarea {
-    flex: 1; background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.08);
-    color: rgba(255,255,255,0.9);
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(15px, 3.5vw, 17px); line-height: 1.9;
-    padding: 16px; resize: none; outline: none;
-    min-height: 220px; overflow-y: auto;
-  }
-  .quotes-textarea::placeholder { color: rgba(255,255,255,0.18); }
-  .quotes-textarea:focus { border-color: rgba(255,255,255,0.2); }
-  .modal-actions { display: flex; gap: 20px; justify-content: flex-end; align-items: center; flex-wrap: wrap; }
-  .modal-btn {
-    background: none; border: none;
-    font-family: 'Cormorant SC', serif; font-size: clamp(12px, 3vw, 14px);
-    letter-spacing: 5px; cursor: pointer; padding: 10px 0;
-    text-transform: uppercase; transition: color 0.3s ease; min-height: 44px;
-  }
-  .modal-btn.cancel { color: rgba(255,255,255,0.9); }
-  .modal-btn.cancel:hover { color: rgba(255,255,255,0.9); }
-  .modal-btn.save { color: rgba(255,255,255,0.9); }
-  .modal-btn.save:hover { color: #fff; }
-  .modal-count {
-    font-family: 'Cormorant SC', serif; font-size: clamp(11px, 2.5vw, 13px);
-    letter-spacing: 3px; color: rgba(255,255,255,0.9); margin-right: auto;
-  }
+
 
   /* ── Done glow ── */
   .done-glow {
@@ -361,26 +305,7 @@
 </div>
 
 <div class="sync-status" id="syncStatus"></div>
-<button class="edit-quotes-btn" id="editQuotesBtn">rediger sitater</button>
 
-<!-- Quote editor modal -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal">
-    <div class="modal-title">Sitat-bibliotek</div>
-    <div class="modal-desc">
-      Ett sitat per linje. Skill sitat og forfatter med en tankestrek:<br>
-      <em>Stillhet er ikke fraværet av noe — Thich Nhat Hanh</em><br>
-      Lagres i skyen — alle brukere ser samme sitat-base.
-    </div>
-    <textarea class="quotes-textarea" id="quotesTextarea" spellcheck="false"
-      placeholder="Skriv inn sitater her, ett per linje..."></textarea>
-    <div class="modal-actions">
-      <span class="modal-count" id="modalCount"></span>
-      <button class="modal-btn cancel" id="modalCancel">avbryt</button>
-      <button class="modal-btn save" id="modalSave">lagre til skyen</button>
-    </div>
-  </div>
-</div>
 
 <script type="module">
   import { initializeApp }
@@ -484,6 +409,7 @@
     if (minutes < 1) return;
     const key = todayKey();
     const ref = doc(db, "stats", key);
+    setStatus('lagrer...', 'syncing');
     try {
       await runTransaction(db, async tx => {
         const snap = await tx.get(ref);
@@ -496,10 +422,13 @@
           tx.set(ref, { sessions: 1, totalMinutes: minutes });
         }
       });
-      delete statsCache[key]; // invalidate cache so next render fetches fresh
-      if (statsOffset === 0) await renderStats(); // re-render today immediately
+      setStatus('lagret', '');
+      setTimeout(() => setStatus(''), 2000);
+      delete statsCache[key];
+      if (statsOffset === 0) await renderStats();
     } catch(e) {
-      console.warn('Stats write failed', e);
+      console.error('Stats write failed:', e);
+      setStatus('feil: ' + e.code, 'error');
     }
   }
 
@@ -590,56 +519,6 @@
     document.getElementById('quoteArea').classList.remove('visible');
   }
 
-  // ── Quote editor ──────────────────────────────────────
-  const ADMIN_PASSWORD = "maharishi";
-  const editQuotesBtn  = document.getElementById('editQuotesBtn');
-  const modalOverlay   = document.getElementById('modalOverlay');
-  const quotesTA       = document.getElementById('quotesTextarea');
-  const modalCancel    = document.getElementById('modalCancel');
-  const modalSave      = document.getElementById('modalSave');
-  const modalCount     = document.getElementById('modalCount');
-
-  function updateCount() {
-    const n = quotesTA.value.split('\n').filter(l=>l.trim()).length;
-    modalCount.textContent = n + ' sitater';
-  }
-
-  editQuotesBtn.addEventListener('click', async () => {
-    const pwd = prompt('Administratorpassord:');
-    if (pwd === null) return;
-    if (pwd !== ADMIN_PASSWORD) { alert('Feil passord.'); return; }
-    setStatus('henter...','syncing');
-    try {
-      const snap = await getDoc(QUOTES_DOC);
-      quotesTA.value = (snap.exists() ? snap.data().lines || [] : DEFAULT_LINES).join('\n');
-    } catch(e) {
-      quotesTA.value = QUOTES.map(q => q.author ? q.text+' — '+q.author : q.text).join('\n');
-    }
-    updateCount(); setStatus('');
-    modalOverlay.classList.add('open');
-    setTimeout(() => quotesTA.focus(), 50);
-  });
-
-  quotesTA.addEventListener('input', updateCount);
-  modalCancel.addEventListener('click', () => modalOverlay.classList.remove('open'));
-  modalOverlay.addEventListener('click', e => { if(e.target===modalOverlay) modalOverlay.classList.remove('open'); });
-
-  modalSave.addEventListener('click', async () => {
-    const lines = quotesTA.value.split('\n').filter(l=>l.trim());
-    if (!lines.length) return;
-    setStatus('lagrer...','syncing');
-    modalOverlay.classList.remove('open');
-    try {
-      await setDoc(QUOTES_DOC, { lines });
-      setStatus('lagret','');
-      setTimeout(()=>setStatus(''), 2000);
-    } catch(e) { setStatus('feil ved lagring','error'); }
-  });
-
-  document.addEventListener('keydown', e => {
-    if (e.key==='Escape' && modalOverlay.classList.contains('open'))
-      modalOverlay.classList.remove('open');
-  });
 
   // ── Timer ─────────────────────────────────────────────
   const CIRCUMFERENCE = 2 * Math.PI * 138;
@@ -746,7 +625,7 @@
   // Start
   startBtn.addEventListener('click',()=>{
     if(!remaining||running)return;
-    preloadAudio(); // unlock audio on iOS via user gesture
+    preloadAudio();
     running=true; sessionRecorded=false;
     display.classList.add('running','no-edit');
     ring.classList.add('visible');
@@ -754,23 +633,23 @@
     startBtn.style.display='none'; pauseBtn.style.display=''; resetBtn.style.display='';
     editHint.style.opacity='0';
     showQuote();
-    interval=setInterval(tick,1000);
+    startInterval();
   });
 
   // Pause
   pauseBtn.addEventListener('click',()=>{
     if(!running){
       running=true; pauseBtn.textContent='pause'; label.textContent='mediterer';
-      interval=setInterval(tick,1000);
+      startInterval();
     } else {
-      running=false; clearInterval(interval);
+      running=false; stopInterval();
       pauseBtn.textContent='fortsett'; label.textContent='pause';
     }
   });
 
   // Reset
   resetBtn.addEventListener('click',()=>{
-    clearInterval(interval); running=false; remaining=totalSeconds;
+    stopInterval(); running=false; remaining=totalSeconds;
     display.textContent=fmt(remaining);
     display.classList.remove('running','pulsing','no-edit');
     ring.classList.remove('visible'); ringProg.classList.remove('done');
@@ -782,20 +661,64 @@
     hideQuote();
   });
 
-  // Tick
-  function tick() {
-    remaining--;
-    display.textContent=fmt(remaining);
-    updateRing(remaining,totalSeconds);
-    if(remaining<=0){ clearInterval(interval); running=false; finish(); }
+  // ── Sleep-safe timer ─────────────────────────────────
+  // Uses real wall-clock timestamps so phone sleep doesn't lose time
+  let startTimestamp = null;   // Date.now() when timer started
+  let remainingAtStart = 0;    // remaining seconds when started/resumed
+
+  function startInterval() {
+    startTimestamp = Date.now();
+    remainingAtStart = remaining;
+    interval = setInterval(tick, 500); // check every 500ms for responsiveness
   }
+
+  function stopInterval() {
+    clearInterval(interval);
+    interval = null;
+    startTimestamp = null;
+  }
+
+  // Tick — recalculates from wall clock, immune to sleep drift
+  function tick() {
+    if (!startTimestamp) return;
+    const elapsed = Math.floor((Date.now() - startTimestamp) / 1000);
+    remaining = remainingAtStart - elapsed;
+    if (remaining <= 0) {
+      remaining = 0;
+      display.textContent = fmt(0);
+      updateRing(0, totalSeconds);
+      stopInterval();
+      running = false;
+      finish();
+    } else {
+      display.textContent = fmt(remaining);
+      updateRing(remaining, totalSeconds);
+    }
+  }
+
+  // Wake up after sleep — recalculate immediately when screen comes back
+  document.addEventListener('visibilitychange', () => {
+    if (!running || document.hidden) return;
+    if (startTimestamp) {
+      const elapsed = Math.floor((Date.now() - startTimestamp) / 1000);
+      remaining = remainingAtStart - elapsed;
+      if (remaining <= 0) {
+        remaining = 0;
+        stopInterval();
+        running = false;
+        finish();
+      } else {
+        display.textContent = fmt(remaining);
+        updateRing(remaining, totalSeconds);
+      }
+    }
+  });
 
   function finish() {
     display.textContent='00:00'; label.textContent='fullført';
     display.classList.remove('running'); display.classList.add('pulsing');
     ringProg.classList.add('done'); doneGlow.classList.add('show');
     pauseBtn.style.display='none';
-    // Record completed session
     if (!sessionRecorded) {
       sessionRecorded = true;
       const minutes = Math.round(totalSeconds / 60);
