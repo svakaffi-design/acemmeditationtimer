@@ -291,6 +291,10 @@
     <button class="ctrl-btn" id="pauseBtn" style="display:none">pause</button>
   </div>
 
+  <div id="sleepWarning" style="display:none; font-family:'Cormorant SC',serif; font-size:11px; letter-spacing:3px; color:rgba(255,255,255,0.35); text-align:center; line-height:1.8;">
+    hold skjermen på for å høre alarmen
+  </div>
+
   <!-- Stats panel -->
   <div class="stats-panel">
     <div class="stats-header">
@@ -690,6 +694,7 @@
     label.textContent='mediterer'; label.classList.add('active');
     startBtn.style.display='none'; pauseBtn.style.display=''; resetBtn.style.display='';
     editHint.style.opacity='0';
+    document.getElementById('sleepWarning').style.display='block';
     showQuote();
     startSilentLoop();
     startInterval();
@@ -719,6 +724,7 @@
     startBtn.style.display=''; startBtn.disabled=false;
     pauseBtn.style.display='none'; pauseBtn.textContent='pause';
     resetBtn.style.display='none'; editHint.style.opacity='1';
+    document.getElementById('sleepWarning').style.display='none';
     hideQuote();
   });
 
@@ -777,6 +783,7 @@
 
   function finish() {
     stopSilentLoop();
+    document.getElementById('sleepWarning').style.display='none';
     display.textContent='00:00'; label.textContent='fullført';
     display.classList.remove('running'); display.classList.add('pulsing');
     ringProg.classList.add('done'); doneGlow.classList.add('show');
