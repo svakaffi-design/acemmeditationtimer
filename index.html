@@ -42,17 +42,17 @@
   .title {
     font-family: 'Cormorant SC', serif;
     font-weight: 300; font-size: clamp(17px, 5vw, 26px);
-    letter-spacing: clamp(6px, 2vw, 12px); color: rgba(255,255,255,0.65);
+    letter-spacing: clamp(6px, 2vw, 12px); color: rgba(255,255,255,0.9);
   }
 
   /* ── Status label ── */
   .label {
     font-family: 'Cormorant SC', serif;
     font-weight: 300; font-size: clamp(13px, 3.5vw, 15px);
-    letter-spacing: clamp(4px, 1.5vw, 7px); color: rgba(255,255,255,0.4);
+    letter-spacing: clamp(4px, 1.5vw, 7px); color: rgba(255,255,255,0.9);
     text-transform: uppercase; transition: color 0.8s ease; min-height: 20px;
   }
-  .label.active { color: rgba(255,255,255,0.7); }
+  .label.active { color: rgba(255,255,255,0.9); }
 
   /* ── Ring & timer ── */
   .ring-wrapper {
@@ -77,7 +77,7 @@
     letter-spacing: -2px; line-height: 1; color: #fff;
     cursor: text; transition: color 0.3s ease; position: relative;
   }
-  .timer-display:hover:not(.no-edit) { color: rgba(255,255,255,0.7); }
+  .timer-display:hover:not(.no-edit) { color: rgba(255,255,255,0.9); }
   .timer-display.running::after {
     content: ''; position: absolute;
     bottom: -8px; left: 50%; transform: translateX(-50%);
@@ -99,13 +99,13 @@
   .time-sep {
     font-family: 'Cormorant Garamond', serif;
     font-weight: 300; font-size: clamp(88px, 22vw, 160px);
-    color: rgba(255,255,255,0.4); line-height: 1;
+    color: rgba(255,255,255,0.9); line-height: 1;
     padding: 0 2px; margin-bottom: 6px;
   }
   .edit-hint {
     font-family: 'Cormorant SC', serif;
     font-size: clamp(11px, 3vw, 13px); letter-spacing: 4px;
-    color: rgba(255,255,255,0.28); transition: opacity 0.4s ease;
+    color: rgba(255,255,255,0.9); transition: opacity 0.4s ease;
   }
 
   /* ── Quote ── */
@@ -120,12 +120,12 @@
     font-family: 'Cormorant Garamond', serif;
     font-weight: 400; font-style: italic;
     font-size: clamp(18px, 4.5vw, 22px);
-    line-height: 1.65; color: rgba(255,255,255,0.75);
+    line-height: 1.65; color: rgba(255,255,255,0.9);
   }
   .quote-author {
     font-family: 'Cormorant SC', serif;
     font-weight: 300; font-size: clamp(12px, 3vw, 14px);
-    letter-spacing: 4px; color: rgba(255,255,255,0.4);
+    letter-spacing: 4px; color: rgba(255,255,255,0.9);
   }
 
   /* ── Presets ── */
@@ -134,7 +134,7 @@
     justify-content: center; max-width: 500px;
   }
   .preset-btn {
-    background: none; border: none; color: rgba(255,255,255,0.38);
+    background: none; border: none; color: rgba(255,255,255,0.9);
     font-family: 'Cormorant SC', serif; font-size: clamp(15px, 4vw, 17px);
     letter-spacing: 3px; cursor: pointer;
     padding: clamp(10px, 2.5vw, 12px) clamp(6px, 2vw, 10px);
@@ -146,7 +146,7 @@
     width: 0; height: 1px; background: rgba(255,255,255,0.5);
     transition: width 0.4s ease;
   }
-  .preset-btn:hover { color: rgba(255,255,255,0.7); }
+  .preset-btn:hover { color: rgba(255,255,255,0.9); }
   .preset-btn:hover::after { width: 100%; }
   .preset-btn.selected { color: rgba(255,255,255,0.95); }
   .preset-btn.selected::after { width: 100%; background: rgba(255,255,255,0.7); }
@@ -154,15 +154,15 @@
   /* ── Controls ── */
   .controls { display: flex; gap: clamp(24px, 7vw, 40px); align-items: center; }
   .ctrl-btn {
-    background: none; border: none; color: rgba(255,255,255,0.45);
+    background: none; border: none; color: rgba(255,255,255,0.9);
     font-family: 'Cormorant SC', serif; font-size: clamp(13px, 3.5vw, 15px);
     letter-spacing: clamp(4px, 1.5vw, 6px); cursor: pointer;
     padding: clamp(12px, 3vw, 14px) 4px;
     transition: color 0.4s ease; text-transform: uppercase;
     min-width: 44px; min-height: 44px;
   }
-  .ctrl-btn:hover { color: rgba(255,255,255,0.85); }
-  .ctrl-btn.primary { color: rgba(255,255,255,0.75); font-size: clamp(14px, 4vw, 16px); }
+  .ctrl-btn:hover { color: rgba(255,255,255,0.9); }
+  .ctrl-btn.primary { color: rgba(255,255,255,0.9); font-size: clamp(14px, 4vw, 16px); }
   .ctrl-btn.primary:hover { color: #fff; }
   .ctrl-btn:disabled { opacity: 0.2; pointer-events: none; }
 
@@ -175,17 +175,17 @@
   .stats-date {
     font-family: 'Cormorant SC', serif;
     font-size: clamp(12px, 3.5vw, 15px); letter-spacing: 4px;
-    color: rgba(255,255,255,0.5);
+    color: rgba(255,255,255,0.9);
   }
   .stats-nav { display: flex; gap: 4px; align-items: center; }
   .nav-btn {
     background: none; border: none; cursor: pointer;
-    color: rgba(255,255,255,0.35); font-size: clamp(20px, 5vw, 24px);
+    color: rgba(255,255,255,0.9); font-size: clamp(20px, 5vw, 24px);
     padding: 6px 10px; transition: color 0.3s ease;
     min-width: 44px; min-height: 44px;
     display: flex; align-items: center; justify-content: center;
   }
-  .nav-btn:hover { color: rgba(255,255,255,0.7); }
+  .nav-btn:hover { color: rgba(255,255,255,0.9); }
   .nav-btn:disabled { opacity: 0.1; pointer-events: none; }
 
   .stats-grid {
@@ -205,12 +205,12 @@
   .stat-label {
     font-family: 'Cormorant SC', serif;
     font-size: clamp(10px, 2.5vw, 12px); letter-spacing: 2px;
-    color: rgba(255,255,255,0.38); text-align: center; text-transform: uppercase;
+    color: rgba(255,255,255,0.9); text-align: center; text-transform: uppercase;
   }
   .stats-loading {
     font-family: 'Cormorant SC', serif;
     font-size: clamp(12px, 3vw, 14px); letter-spacing: 4px;
-    color: rgba(255,255,255,0.22); text-align: center; padding: 12px 0;
+    color: rgba(255,255,255,0.9); text-align: center; padding: 12px 0;
   }
 
   /* ── Fixed buttons ── */
@@ -218,20 +218,20 @@
     position: fixed; bottom: 20px; left: 20px;
     font-family: 'Cormorant SC', serif;
     font-size: clamp(10px, 2.5vw, 12px); letter-spacing: 3px;
-    color: rgba(255,255,255,0.18); transition: color 0.4s ease;
+    color: rgba(255,255,255,0.9); transition: color 0.4s ease;
   }
-  .sync-status.syncing { color: rgba(255,255,255,0.45); }
+  .sync-status.syncing { color: rgba(255,255,255,0.9); }
   .sync-status.error   { color: rgba(200,80,80,0.7); }
 
   .edit-quotes-btn {
     position: fixed; bottom: 20px; right: 20px;
     background: none; border: none;
     font-family: 'Cormorant SC', serif; font-size: clamp(10px, 2.5vw, 12px);
-    letter-spacing: 4px; color: rgba(255,255,255,0.18);
+    letter-spacing: 4px; color: rgba(255,255,255,0.9);
     cursor: pointer; text-transform: uppercase; transition: color 0.3s ease;
     padding: 8px; min-height: 44px;
   }
-  .edit-quotes-btn:hover { color: rgba(255,255,255,0.55); }
+  .edit-quotes-btn:hover { color: rgba(255,255,255,0.9); }
 
   /* ── Modals ── */
   .modal-overlay {
@@ -248,17 +248,17 @@
   }
   .modal-title {
     font-family: 'Cormorant SC', serif;
-    font-size: clamp(14px, 3.5vw, 16px); letter-spacing: 6px; color: rgba(255,255,255,0.65);
+    font-size: clamp(14px, 3.5vw, 16px); letter-spacing: 6px; color: rgba(255,255,255,0.9);
   }
   .modal-desc {
     font-family: 'Cormorant Garamond', serif;
     font-size: clamp(15px, 3.5vw, 17px); font-style: italic;
-    color: rgba(255,255,255,0.45); line-height: 1.65;
+    color: rgba(255,255,255,0.9); line-height: 1.65;
   }
   .quotes-textarea {
     flex: 1; background: rgba(255,255,255,0.03);
     border: 1px solid rgba(255,255,255,0.08);
-    color: rgba(255,255,255,0.85);
+    color: rgba(255,255,255,0.9);
     font-family: 'Cormorant Garamond', serif;
     font-size: clamp(15px, 3.5vw, 17px); line-height: 1.9;
     padding: 16px; resize: none; outline: none;
@@ -273,13 +273,13 @@
     letter-spacing: 5px; cursor: pointer; padding: 10px 0;
     text-transform: uppercase; transition: color 0.3s ease; min-height: 44px;
   }
-  .modal-btn.cancel { color: rgba(255,255,255,0.35); }
-  .modal-btn.cancel:hover { color: rgba(255,255,255,0.65); }
-  .modal-btn.save { color: rgba(255,255,255,0.7); }
+  .modal-btn.cancel { color: rgba(255,255,255,0.9); }
+  .modal-btn.cancel:hover { color: rgba(255,255,255,0.9); }
+  .modal-btn.save { color: rgba(255,255,255,0.9); }
   .modal-btn.save:hover { color: #fff; }
   .modal-count {
     font-family: 'Cormorant SC', serif; font-size: clamp(11px, 2.5vw, 13px);
-    letter-spacing: 3px; color: rgba(255,255,255,0.28); margin-right: auto;
+    letter-spacing: 3px; color: rgba(255,255,255,0.9); margin-right: auto;
   }
 
   /* ── Done glow ── */
