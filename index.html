@@ -572,8 +572,44 @@
     ringProg.style.strokeDashoffset = CIRCUMFERENCE * (1-(total>0?rem/total:1));
   }
 
-  // Preload audio on first user interaction (required by iOS)
+  // ── Audio system ──────────────────────────────────────
+  // iOS freezes JS when screen locks UNLESS Web Audio is actively running.
+  // We play a silent 1-second loop via Web Audio from the moment timer starts.
+  // This keeps the audio context alive, prevents JS suspension, and lets
+  // visibilitychange + the wall-clock tick fire correctly when screen unlocks.
+
+  let audioCtx = null;
+  let silentSource = null;
+  let bellAudio = null;
+
+  function getAudioCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
+
+  // Create a 1-second buffer of near-silence (volume 0.001 — inaudible)
+  function startSilentLoop() {
+    if (silentSource) return;
+    const ctx = getAudioCtx();
+    if (ctx.state === 'suspended') ctx.resume();
+    const bufferSize = ctx.sampleRate; // 1 second
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * 0.001;
+    silentSource = ctx.createBufferSource();
+    silentSource.buffer = buffer;
+    silentSource.loop = true;
+    silentSource.connect(ctx.destination);
+    silentSource.start();
+  }
+
+  function stopSilentLoop() {
+    if (silentSource) { try { silentSource.stop(); } catch(e) {} silentSource = null; }
+  }
+
+  // Preload bell audio on first user tap (required by iOS)
   function preloadAudio() {
+    getAudioCtx(); // create context while inside user gesture
     if (bellAudio) return;
     bellAudio = new Audio('meditasjonslyd.mp3');
     bellAudio.load();
@@ -655,6 +691,7 @@
     startBtn.style.display='none'; pauseBtn.style.display=''; resetBtn.style.display='';
     editHint.style.opacity='0';
     showQuote();
+    startSilentLoop();
     startInterval();
   });
 
@@ -662,16 +699,18 @@
   pauseBtn.addEventListener('click',()=>{
     if(!running){
       running=true; pauseBtn.textContent='pause'; label.textContent='mediterer';
+      startSilentLoop();
       startInterval();
     } else {
       running=false; stopInterval();
+      stopSilentLoop();
       pauseBtn.textContent='fortsett'; label.textContent='pause';
     }
   });
 
   // Reset
   resetBtn.addEventListener('click',()=>{
-    stopInterval(); running=false; remaining=totalSeconds;
+    stopInterval(); stopSilentLoop(); running=false; remaining=totalSeconds;
     display.textContent=fmt(remaining);
     display.classList.remove('running','pulsing','no-edit');
     ring.classList.remove('visible'); ringProg.classList.remove('done');
@@ -737,6 +776,7 @@
   });
 
   function finish() {
+    stopSilentLoop();
     display.textContent='00:00'; label.textContent='fullført';
     display.classList.remove('running'); display.classList.add('pulsing');
     ringProg.classList.add('done'); doneGlow.classList.add('show');
@@ -749,11 +789,24 @@
     showQuote(); playBell();
   }
 
-  // Bell — plays preloaded meditasjonslyd.mp3
+  // Bell — uses Web Audio to decode + play mp3 (works after screen unlock on iOS)
   function playBell() {
-    if (!bellAudio) { bellAudio = new Audio('meditasjonslyd.mp3'); }
-    bellAudio.currentTime = 0;
-    bellAudio.play().catch(e => console.warn('Lyd feilet:', e));
+    // Try Web Audio first (most reliable after sleep)
+    fetch('meditasjonslyd.mp3')
+      .then(r => r.arrayBuffer())
+      .then(buf => getAudioCtx().decodeAudioData(buf))
+      .then(decoded => {
+        const src = getAudioCtx().createBufferSource();
+        src.buffer = decoded;
+        src.connect(getAudioCtx().destination);
+        src.start();
+      })
+      .catch(() => {
+        // Fallback to HTML Audio
+        if (!bellAudio) bellAudio = new Audio('meditasjonslyd.mp3');
+        bellAudio.currentTime = 0;
+        bellAudio.play().catch(e => console.warn('Lyd feilet:', e));
+      });
   }
   // ── PWA Service Worker ────────────────────────────────
   if ('serviceWorker' in navigator) {
