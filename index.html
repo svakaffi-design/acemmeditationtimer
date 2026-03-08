@@ -10,16 +10,11 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    background: #000;
-    color: #fff;
+    background: #000; color: #fff;
     font-family: 'Cormorant Garamond', serif;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    user-select: none;
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    overflow-x: hidden; user-select: none;
   }
 
   .ambient {
@@ -33,15 +28,17 @@
     align-items: center; gap: 36px;
     position: relative; z-index: 1;
     width: 100%; max-width: 620px;
-    padding: 0 24px;
+    padding: 40px 24px;
   }
 
+  /* ── Title ── */
   .title {
     font-family: 'Cormorant SC', serif;
     font-weight: 300; font-size: 22px;
     letter-spacing: 10px; color: rgba(255,255,255,0.45);
   }
 
+  /* ── Status label ── */
   .label {
     font-family: 'Cormorant SC', serif;
     font-weight: 300; font-size: 11px;
@@ -50,11 +47,11 @@
   }
   .label.active { color: rgba(255,255,255,0.45); }
 
+  /* ── Ring & timer ── */
   .ring-wrapper {
     position: relative; display: flex;
     flex-direction: column; align-items: center; gap: 14px;
   }
-
   svg.ring {
     position: absolute; transform: rotate(-90deg);
     opacity: 0; transition: opacity 1s ease;
@@ -98,13 +95,13 @@
     color: rgba(255,255,255,0.35); line-height: 1;
     padding: 0 2px; margin-bottom: 6px;
   }
-
   .edit-hint {
     font-family: 'Cormorant SC', serif;
     font-size: 10px; letter-spacing: 4px;
     color: rgba(255,255,255,0.15); transition: opacity 0.4s ease;
   }
 
+  /* ── Quote ── */
   .quote-area {
     text-align: center; min-height: 66px;
     display: flex; flex-direction: column;
@@ -123,6 +120,7 @@
     letter-spacing: 4px; color: rgba(255,255,255,0.2);
   }
 
+  /* ── Presets ── */
   .presets {
     display: flex; gap: 20px; flex-wrap: wrap;
     justify-content: center; max-width: 500px;
@@ -143,6 +141,7 @@
   .preset-btn.selected { color: rgba(255,255,255,0.85); }
   .preset-btn.selected::after { width: 100%; background: rgba(255,255,255,0.6); }
 
+  /* ── Controls ── */
   .controls { display: flex; gap: 32px; align-items: center; }
   .ctrl-btn {
     background: none; border: none; color: rgba(255,255,255,0.3);
@@ -155,7 +154,58 @@
   .ctrl-btn.primary:hover { color: #fff; }
   .ctrl-btn:disabled { opacity: 0.2; pointer-events: none; }
 
-  /* Status indicator */
+  /* ── Stats panel ── */
+  .stats-panel {
+    width: 100%; border-top: 1px solid rgba(255,255,255,0.05);
+    padding-top: 28px; display: flex; flex-direction: column; gap: 18px;
+  }
+
+  .stats-header {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .stats-date {
+    font-family: 'Cormorant SC', serif;
+    font-size: 11px; letter-spacing: 5px;
+    color: rgba(255,255,255,0.3);
+  }
+
+  .stats-nav { display: flex; gap: 16px; align-items: center; }
+  .nav-btn {
+    background: none; border: none; cursor: pointer;
+    color: rgba(255,255,255,0.2); font-size: 16px; line-height: 1;
+    padding: 2px 6px; transition: color 0.3s ease;
+  }
+  .nav-btn:hover { color: rgba(255,255,255,0.6); }
+  .nav-btn:disabled { opacity: 0.1; pointer-events: none; }
+
+  .stats-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 1px; background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .stat-cell {
+    background: #000; padding: 18px 16px;
+    display: flex; flex-direction: column; gap: 6px; align-items: center;
+  }
+  .stat-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300; font-size: 36px; letter-spacing: -1px;
+    color: rgba(255,255,255,0.75); line-height: 1;
+  }
+  .stat-label {
+    font-family: 'Cormorant SC', serif;
+    font-size: 9px; letter-spacing: 3px;
+    color: rgba(255,255,255,0.2); text-align: center; text-transform: uppercase;
+  }
+
+  .stats-loading {
+    font-family: 'Cormorant SC', serif;
+    font-size: 10px; letter-spacing: 4px;
+    color: rgba(255,255,255,0.15); text-align: center; padding: 12px 0;
+  }
+
+  /* ── Fixed buttons ── */
   .sync-status {
     position: fixed; bottom: 24px; left: 28px;
     font-family: 'Cormorant SC', serif;
@@ -170,27 +220,22 @@
     background: none; border: none;
     font-family: 'Cormorant SC', serif; font-size: 10px;
     letter-spacing: 4px; color: rgba(255,255,255,0.12);
-    cursor: pointer; text-transform: uppercase;
-    transition: color 0.3s ease;
+    cursor: pointer; text-transform: uppercase; transition: color 0.3s ease;
   }
   .edit-quotes-btn:hover { color: rgba(255,255,255,0.4); }
 
-  /* Modal */
+  /* ── Modals ── */
   .modal-overlay {
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.92); z-index: 100;
     align-items: center; justify-content: center;
   }
   .modal-overlay.open { display: flex; }
-
   .modal {
-    background: #0d0d0d;
-    border: 1px solid rgba(255,255,255,0.08);
+    background: #0d0d0d; border: 1px solid rgba(255,255,255,0.08);
     width: min(680px, 94vw); max-height: 80vh;
-    display: flex; flex-direction: column;
-    padding: 36px; gap: 20px;
+    display: flex; flex-direction: column; padding: 36px; gap: 20px;
   }
-
   .modal-title {
     font-family: 'Cormorant SC', serif;
     font-size: 13px; letter-spacing: 6px; color: rgba(255,255,255,0.5);
@@ -200,7 +245,6 @@
     font-size: 14px; font-style: italic;
     color: rgba(255,255,255,0.3); line-height: 1.6;
   }
-
   .quotes-textarea {
     flex: 1; background: rgba(255,255,255,0.03);
     border: 1px solid rgba(255,255,255,0.08);
@@ -212,7 +256,6 @@
   }
   .quotes-textarea::placeholder { color: rgba(255,255,255,0.15); }
   .quotes-textarea:focus { border-color: rgba(255,255,255,0.18); }
-
   .modal-actions { display: flex; gap: 20px; justify-content: flex-end; align-items: center; }
   .modal-btn {
     background: none; border: none;
@@ -229,6 +272,7 @@
     letter-spacing: 3px; color: rgba(255,255,255,0.18); margin-right: auto;
   }
 
+  /* ── Done glow ── */
   .done-glow {
     position: fixed; inset: 0;
     background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(255,255,255,0.03) 0%, transparent 70%);
@@ -285,6 +329,18 @@
     <button class="ctrl-btn primary" id="startBtn" disabled>start</button>
     <button class="ctrl-btn" id="pauseBtn" style="display:none">pause</button>
   </div>
+
+  <!-- Stats panel -->
+  <div class="stats-panel">
+    <div class="stats-header">
+      <div class="stats-date" id="statsDate">—</div>
+      <div class="stats-nav">
+        <button class="nav-btn" id="statsPrev" title="Forrige dag">&#8592;</button>
+        <button class="nav-btn" id="statsNext" title="Neste dag" disabled>&#8594;</button>
+      </div>
+    </div>
+    <div id="statsContent" class="stats-loading">laster statistikk...</div>
+  </div>
 </div>
 
 <div class="sync-status" id="syncStatus"></div>
@@ -309,27 +365,139 @@
   </div>
 </div>
 
-<!-- Firebase -->
 <script type="module">
-  import { initializeApp }                      from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, setDoc, onSnapshot }
+  import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc, onSnapshot, runTransaction, collection, getDocs, query, orderBy, limit }
     from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
-  // ── Firebase config ───────────────────────────────────
-  const firebaseConfig = {
+  // ── Firebase ──────────────────────────────────────────
+  const app = initializeApp({
     apiKey:            "AIzaSyBDHMcNLpDgu0Z5Qjr76C3HAx5ATrrKyPI",
     authDomain:        "acemmeditationtimer.firebaseapp.com",
     projectId:         "acemmeditationtimer",
     storageBucket:     "acemmeditationtimer.firebasestorage.app",
     messagingSenderId: "6885818187",
     appId:             "1:6885818187:web:1f4c7f302a204af566f2ce"
-  };
+  });
+  const db = getFirestore(app);
 
-  const app = initializeApp(firebaseConfig);
-  const db  = getFirestore(app);
   const QUOTES_DOC = doc(db, "config", "quotes");
+  const STATS_COL  = collection(db, "stats"); // doc per day: "2025-03-08"
 
-  // ── Default quotes (used if Firestore is empty) ───────
+  function todayKey() {
+    const d = new Date();
+    return d.getFullYear() + '-' +
+      String(d.getMonth()+1).padStart(2,'0') + '-' +
+      String(d.getDate()).padStart(2,'0');
+  }
+
+  // ── Sync status ───────────────────────────────────────
+  function setStatus(msg, cls) {
+    const el = document.getElementById('syncStatus');
+    el.textContent = msg;
+    el.className = 'sync-status' + (cls ? ' '+cls : '');
+  }
+
+  // ── Stats ─────────────────────────────────────────────
+  let statsCache = {};   // dateKey → {sessions, totalMinutes}
+  let statsOffset = 0;   // 0 = today, -1 = yesterday, etc.
+  let availableDays = [];
+
+  function dateKeyOffset(offset) {
+    const d = new Date();
+    d.setDate(d.getDate() + offset);
+    return d.getFullYear() + '-' +
+      String(d.getMonth()+1).padStart(2,'0') + '-' +
+      String(d.getDate()).padStart(2,'0');
+  }
+
+  function formatDateLabel(key) {
+    const [y, m, d] = key.split('-').map(Number);
+    const date = new Date(y, m-1, d);
+    const days = ['søndag','mandag','tirsdag','onsdag','torsdag','fredag','lørdag'];
+    const months = ['jan','feb','mar','apr','mai','jun','jul','aug','sep','okt','nov','des'];
+    const today = todayKey();
+    const yest = dateKeyOffset(-1);
+    if (key === today) return 'I dag';
+    if (key === yest) return 'I går';
+    return days[date.getDay()] + ' ' + d + '. ' + months[m-1];
+  }
+
+  async function loadStats(key) {
+    if (statsCache[key]) return statsCache[key];
+    try {
+      const snap = await getDoc(doc(db, "stats", key));
+      const data = snap.exists() ? snap.data() : { sessions: 0, totalMinutes: 0 };
+      statsCache[key] = data;
+      return data;
+    } catch(e) {
+      return { sessions: 0, totalMinutes: 0 };
+    }
+  }
+
+  async function renderStats() {
+    const key = dateKeyOffset(statsOffset);
+    const data = await loadStats(key);
+    const sessions = data.sessions || 0;
+    const totalMin = data.totalMinutes || 0;
+    const avg = sessions > 0 ? Math.round(totalMin / sessions) : 0;
+
+    document.getElementById('statsDate').textContent = formatDateLabel(key);
+    document.getElementById('statsNext').disabled = statsOffset >= 0;
+
+    document.getElementById('statsContent').innerHTML = `
+      <div class="stats-grid">
+        <div class="stat-cell">
+          <div class="stat-value">${sessions}</div>
+          <div class="stat-label">Brukere</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-value">${avg}</div>
+          <div class="stat-label">Snitt min</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-value">${totalMin}</div>
+          <div class="stat-label">Total min</div>
+        </div>
+      </div>`;
+  }
+
+  async function recordSession(minutes) {
+    if (minutes < 1) return;
+    const key = todayKey();
+    const ref = doc(db, "stats", key);
+    try {
+      await runTransaction(db, async tx => {
+        const snap = await tx.get(ref);
+        if (snap.exists()) {
+          tx.update(ref, {
+            sessions:     (snap.data().sessions || 0) + 1,
+            totalMinutes: (snap.data().totalMinutes || 0) + minutes
+          });
+        } else {
+          tx.set(ref, { sessions: 1, totalMinutes: minutes });
+        }
+      });
+      delete statsCache[key]; // invalidate cache
+      if (statsOffset === 0) renderStats();
+    } catch(e) {
+      console.warn('Stats write failed', e);
+    }
+  }
+
+  // Nav buttons
+  document.getElementById('statsPrev').addEventListener('click', () => {
+    statsOffset--;
+    renderStats();
+  });
+  document.getElementById('statsNext').addEventListener('click', () => {
+    if (statsOffset < 0) { statsOffset++; renderStats(); }
+  });
+
+  renderStats();
+
+  // ── Default quotes ────────────────────────────────────
   const DEFAULT_LINES = [
     "Du kan ikke stoppe bølgene, men du kan lære å surfe — Jon Kabat-Zinn",
     "Det eneste øyeblikket du noen gang vil ha er dette — Thich Nhat Hanh",
@@ -358,46 +526,36 @@
     "Jo mer rolig et menneske er, desto større er dets suksess — James Allen",
   ];
 
-  // ── Quote state ───────────────────────────────────────
+  // ── Quotes ────────────────────────────────────────────
   let QUOTES = [];
   let lastQuoteIndex = -1;
 
   function parseLines(lines) {
-    return lines.map(l => l.trim()).filter(l => l).map(l => {
+    return lines.map(l => l.trim()).filter(Boolean).map(l => {
       const i = l.lastIndexOf(' — ');
-      if (i !== -1) return { text: l.slice(0, i).trim(), author: l.slice(i + 3).trim() };
+      if (i !== -1) return { text: l.slice(0,i).trim(), author: l.slice(i+3).trim() };
       const j = l.lastIndexOf(' - ');
-      if (j !== -1) return { text: l.slice(0, j).trim(), author: l.slice(j + 3).trim() };
+      if (j !== -1) return { text: l.slice(0,j).trim(), author: l.slice(j+3).trim() };
       return { text: l, author: '' };
     });
   }
 
-  function setStatus(msg, cls) {
-    const el = document.getElementById('syncStatus');
-    el.textContent = msg; el.className = 'sync-status' + (cls ? ' ' + cls : '');
-  }
-
-  // ── Load quotes from Firestore (live listener) ────────
   onSnapshot(QUOTES_DOC, snap => {
     if (snap.exists()) {
-      const lines = snap.data().lines || [];
-      QUOTES = parseLines(lines);
-      setStatus('');
+      QUOTES = parseLines(snap.data().lines || []);
     } else {
-      // First run: seed defaults into Firestore
-      setDoc(QUOTES_DOC, { lines: DEFAULT_LINES }).catch(() => {});
+      setDoc(QUOTES_DOC, { lines: DEFAULT_LINES }).catch(()=>{});
       QUOTES = parseLines(DEFAULT_LINES);
     }
     showQuote();
   }, () => {
-    // Offline fallback
-    if (QUOTES.length === 0) QUOTES = parseLines(DEFAULT_LINES);
-    setStatus('frakoblet', 'error');
+    if (!QUOTES.length) QUOTES = parseLines(DEFAULT_LINES);
+    setStatus('frakoblet','error');
     showQuote();
   });
 
   function showQuote() {
-    if (QUOTES.length === 0) return;
+    if (!QUOTES.length) return;
     let idx;
     do { idx = Math.floor(Math.random() * QUOTES.length); }
     while (QUOTES.length > 1 && idx === lastQuoteIndex);
@@ -407,71 +565,62 @@
     area.classList.remove('visible');
     setTimeout(() => {
       document.getElementById('quoteText').textContent   = '\u201C' + q.text + '\u201D';
-      document.getElementById('quoteAuthor').textContent = q.author ? '— ' + q.author : '';
+      document.getElementById('quoteAuthor').textContent = q.author ? '— '+q.author : '';
       area.classList.add('visible');
     }, 500);
   }
-
   function hideQuote() {
     document.getElementById('quoteArea').classList.remove('visible');
   }
 
   // ── Quote editor ──────────────────────────────────────
-  const editQuotesBtn = document.getElementById('editQuotesBtn');
-  const modalOverlay  = document.getElementById('modalOverlay');
-  const quotesTA      = document.getElementById('quotesTextarea');
-  const modalCancel   = document.getElementById('modalCancel');
-  const modalSave     = document.getElementById('modalSave');
-  const modalCount    = document.getElementById('modalCount');
+  const ADMIN_PASSWORD = "maharishi";
+  const editQuotesBtn  = document.getElementById('editQuotesBtn');
+  const modalOverlay   = document.getElementById('modalOverlay');
+  const quotesTA       = document.getElementById('quotesTextarea');
+  const modalCancel    = document.getElementById('modalCancel');
+  const modalSave      = document.getElementById('modalSave');
+  const modalCount     = document.getElementById('modalCount');
 
   function updateCount() {
-    const n = quotesTA.value.split('\n').filter(l => l.trim()).length;
+    const n = quotesTA.value.split('\n').filter(l=>l.trim()).length;
     modalCount.textContent = n + ' sitater';
   }
-
-  const ADMIN_PASSWORD = "maharishi";
 
   editQuotesBtn.addEventListener('click', async () => {
     const pwd = prompt('Administratorpassord:');
     if (pwd === null) return;
-    if (pwd !== ADMIN_PASSWORD) {
-      alert('Feil passord.');
-      return;
-    }
-    setStatus('henter...', 'syncing');
+    if (pwd !== ADMIN_PASSWORD) { alert('Feil passord.'); return; }
+    setStatus('henter...','syncing');
     try {
       const snap = await getDoc(QUOTES_DOC);
-      const lines = snap.exists() ? (snap.data().lines || []) : DEFAULT_LINES;
-      quotesTA.value = lines.join('\n');
+      quotesTA.value = (snap.exists() ? snap.data().lines || [] : DEFAULT_LINES).join('\n');
     } catch(e) {
-      quotesTA.value = QUOTES.map(q => q.author ? q.text + ' — ' + q.author : q.text).join('\n');
+      quotesTA.value = QUOTES.map(q => q.author ? q.text+' — '+q.author : q.text).join('\n');
     }
-    updateCount();
-    setStatus('');
+    updateCount(); setStatus('');
     modalOverlay.classList.add('open');
     setTimeout(() => quotesTA.focus(), 50);
   });
 
   quotesTA.addEventListener('input', updateCount);
   modalCancel.addEventListener('click', () => modalOverlay.classList.remove('open'));
-  modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) modalOverlay.classList.remove('open'); });
+  modalOverlay.addEventListener('click', e => { if(e.target===modalOverlay) modalOverlay.classList.remove('open'); });
 
   modalSave.addEventListener('click', async () => {
-    const lines = quotesTA.value.split('\n').filter(l => l.trim());
-    if (lines.length === 0) return;
-    setStatus('lagrer...', 'syncing');
+    const lines = quotesTA.value.split('\n').filter(l=>l.trim());
+    if (!lines.length) return;
+    setStatus('lagrer...','syncing');
     modalOverlay.classList.remove('open');
     try {
       await setDoc(QUOTES_DOC, { lines });
-      setStatus('lagret', '');
-      setTimeout(() => setStatus(''), 2000);
-    } catch(e) {
-      setStatus('feil ved lagring', 'error');
-    }
+      setStatus('lagret','');
+      setTimeout(()=>setStatus(''), 2000);
+    } catch(e) { setStatus('feil ved lagring','error'); }
   });
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && modalOverlay.classList.contains('open'))
+    if (e.key==='Escape' && modalOverlay.classList.contains('open'))
       modalOverlay.classList.remove('open');
   });
 
@@ -479,94 +628,89 @@
   const CIRCUMFERENCE = 2 * Math.PI * 138;
   let totalSeconds = 0, remaining = 0, interval = null;
   let running = false, editing = false, audioCtx = null;
+  let sessionRecorded = false;
 
-  const display   = document.getElementById('timerDisplay');
-  const editWrap  = document.getElementById('timerEditWrap');
-  const editMin   = document.getElementById('editMin');
-  const editSec   = document.getElementById('editSec');
-  const startBtn  = document.getElementById('startBtn');
-  const pauseBtn  = document.getElementById('pauseBtn');
-  const resetBtn  = document.getElementById('resetBtn');
-  const label     = document.getElementById('stateLabel');
-  const editHint  = document.getElementById('editHint');
-  const ring      = document.getElementById('progressRing');
-  const ringProg  = document.getElementById('ringProgress');
-  const doneGlow  = document.getElementById('doneGlow');
+  const display  = document.getElementById('timerDisplay');
+  const editWrap = document.getElementById('timerEditWrap');
+  const editMin  = document.getElementById('editMin');
+  const editSec  = document.getElementById('editSec');
+  const startBtn = document.getElementById('startBtn');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const label    = document.getElementById('stateLabel');
+  const editHint = document.getElementById('editHint');
+  const ring     = document.getElementById('progressRing');
+  const ringProg = document.getElementById('ringProgress');
+  const doneGlow = document.getElementById('doneGlow');
 
   ringProg.style.strokeDasharray  = CIRCUMFERENCE;
   ringProg.style.strokeDashoffset = 0;
 
   function fmt(s) {
-    return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
+    return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
   }
   function updateRing(rem, total) {
-    ringProg.style.strokeDashoffset = CIRCUMFERENCE * (1 - (total > 0 ? rem/total : 1));
+    ringProg.style.strokeDashoffset = CIRCUMFERENCE * (1-(total>0?rem/total:1));
   }
 
   // Edit timer
   function enterEdit() {
-    if (running || editing) return;
-    editing = true;
-    editMin.value = String(Math.floor(remaining/60)).padStart(2,'0');
-    editSec.value = String(remaining%60).padStart(2,'0');
-    display.style.display = 'none';
-    editWrap.classList.add('active');
-    editHint.style.opacity = '0';
-    editMin.focus(); editMin.select();
+    if (running||editing) return;
+    editing=true;
+    editMin.value=String(Math.floor(remaining/60)).padStart(2,'0');
+    editSec.value=String(remaining%60).padStart(2,'0');
+    display.style.display='none'; editWrap.classList.add('active');
+    editHint.style.opacity='0'; editMin.focus(); editMin.select();
   }
   function commitEdit() {
-    if (!editing) return; editing = false;
-    const m = Math.max(0, Math.min(99, parseInt(editMin.value)||0));
-    const s = Math.max(0, Math.min(59, parseInt(editSec.value)||0));
-    const total = m*60+s;
-    editWrap.classList.remove('active'); display.style.display = '';
-    editHint.style.opacity = '1';
-    if (total > 0) {
-      totalSeconds = total; remaining = total;
-      display.textContent = fmt(remaining); startBtn.disabled = false;
-      label.textContent = m + (s > 0 ? ':'+String(s).padStart(2,'0') : '') + ' minutter';
-      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('selected'));
+    if (!editing) return; editing=false;
+    const m=Math.max(0,Math.min(99,parseInt(editMin.value)||0));
+    const s=Math.max(0,Math.min(59,parseInt(editSec.value)||0));
+    const total=m*60+s;
+    editWrap.classList.remove('active'); display.style.display=''; editHint.style.opacity='1';
+    if (total>0) {
+      totalSeconds=total; remaining=total;
+      display.textContent=fmt(remaining); startBtn.disabled=false;
+      label.textContent=m+(s>0?':'+String(s).padStart(2,'0'):'')+' minutter';
+      document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('selected'));
       ring.classList.remove('visible'); ringProg.classList.remove('done');
-      ringProg.style.strokeDashoffset = 0; doneGlow.classList.remove('show');
+      ringProg.style.strokeDashoffset=0; doneGlow.classList.remove('show');
       display.classList.remove('pulsing','no-edit');
       resetBtn.style.display='none'; pauseBtn.style.display='none'; startBtn.style.display='';
-    } else { display.textContent = fmt(remaining); }
+    } else { display.textContent=fmt(remaining); }
   }
   function cancelEdit() {
-    editing = false; editWrap.classList.remove('active');
-    display.style.display = ''; editHint.style.opacity = '1';
-    display.textContent = fmt(remaining);
+    editing=false; editWrap.classList.remove('active');
+    display.style.display=''; editHint.style.opacity='1';
+    display.textContent=fmt(remaining);
   }
 
   display.addEventListener('click', enterEdit);
-  editMin.addEventListener('input', () => {
-    editMin.value = editMin.value.replace(/\D/g,'');
-    if (editMin.value.length === 2) { editSec.focus(); editSec.select(); }
+  editMin.addEventListener('input', ()=>{ editMin.value=editMin.value.replace(/\D/g,''); if(editMin.value.length===2){editSec.focus();editSec.select();} });
+  editSec.addEventListener('input', ()=>{ editSec.value=editSec.value.replace(/\D/g,''); });
+  editMin.addEventListener('keydown', e=>{
+    if(e.key===':'||e.key==='Tab'){e.preventDefault();editSec.focus();editSec.select();}
+    if(e.key==='Enter')commitEdit(); if(e.key==='Escape')cancelEdit();
   });
-  editSec.addEventListener('input', () => { editSec.value = editSec.value.replace(/\D/g,''); });
-  editMin.addEventListener('keydown', e => {
-    if (e.key===':'||e.key==='Tab'){e.preventDefault();editSec.focus();editSec.select();}
-    if (e.key==='Enter') commitEdit(); if (e.key==='Escape') cancelEdit();
+  editSec.addEventListener('keydown', e=>{
+    if(e.key==='Enter')commitEdit(); if(e.key==='Escape')cancelEdit();
+    if(e.key==='Backspace'&&editSec.value===''){editMin.focus();editMin.select();}
   });
-  editSec.addEventListener('keydown', e => {
-    if (e.key==='Enter') commitEdit(); if (e.key==='Escape') cancelEdit();
-    if (e.key==='Backspace'&&editSec.value===''){editMin.focus();editMin.select();}
-  });
-  editMin.addEventListener('blur', () => setTimeout(()=>{ if(editing&&document.activeElement!==editSec) commitEdit(); },120));
-  editSec.addEventListener('blur', () => setTimeout(()=>{ if(editing&&document.activeElement!==editMin) commitEdit(); },120));
+  editMin.addEventListener('blur',()=>setTimeout(()=>{ if(editing&&document.activeElement!==editSec)commitEdit(); },120));
+  editSec.addEventListener('blur',()=>setTimeout(()=>{ if(editing&&document.activeElement!==editMin)commitEdit(); },120));
 
   // Presets
-  document.querySelectorAll('.preset-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (running) return;
+  document.querySelectorAll('.preset-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      if(running)return;
       document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('selected'));
       btn.classList.add('selected');
-      const mins = parseInt(btn.dataset.min);
-      totalSeconds = mins*60; remaining = totalSeconds;
-      display.textContent = fmt(remaining); startBtn.disabled = false;
-      label.textContent = mins + ' minutter';
+      const mins=parseInt(btn.dataset.min);
+      totalSeconds=mins*60; remaining=totalSeconds;
+      display.textContent=fmt(remaining); startBtn.disabled=false;
+      label.textContent=mins+' minutter';
       ring.classList.remove('visible'); ringProg.classList.remove('done');
-      ringProg.style.strokeDashoffset = 0; doneGlow.classList.remove('show');
+      ringProg.style.strokeDashoffset=0; doneGlow.classList.remove('show');
       display.classList.remove('pulsing','no-edit');
       resetBtn.style.display='none'; pauseBtn.style.display='none'; startBtn.style.display='';
       editHint.style.opacity='1';
@@ -574,22 +718,22 @@
   });
 
   // Start
-  startBtn.addEventListener('click', () => {
-    if (!remaining||running) return;
-    running = true;
+  startBtn.addEventListener('click',()=>{
+    if(!remaining||running)return;
+    running=true; sessionRecorded=false;
     display.classList.add('running','no-edit');
     ring.classList.add('visible');
     label.textContent='mediterer'; label.classList.add('active');
     startBtn.style.display='none'; pauseBtn.style.display=''; resetBtn.style.display='';
     editHint.style.opacity='0';
-    if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
     showQuote();
-    interval = setInterval(tick, 1000);
+    interval=setInterval(tick,1000);
   });
 
   // Pause
-  pauseBtn.addEventListener('click', () => {
-    if (!running) {
+  pauseBtn.addEventListener('click',()=>{
+    if(!running){
       running=true; pauseBtn.textContent='pause'; label.textContent='mediterer';
       interval=setInterval(tick,1000);
     } else {
@@ -599,7 +743,7 @@
   });
 
   // Reset
-  resetBtn.addEventListener('click', () => {
+  resetBtn.addEventListener('click',()=>{
     clearInterval(interval); running=false; remaining=totalSeconds;
     display.textContent=fmt(remaining);
     display.classList.remove('running','pulsing','no-edit');
@@ -615,9 +759,9 @@
   // Tick
   function tick() {
     remaining--;
-    display.textContent = fmt(remaining);
-    updateRing(remaining, totalSeconds);
-    if (remaining <= 0) { clearInterval(interval); running=false; finish(); }
+    display.textContent=fmt(remaining);
+    updateRing(remaining,totalSeconds);
+    if(remaining<=0){ clearInterval(interval); running=false; finish(); }
   }
 
   function finish() {
@@ -625,41 +769,19 @@
     display.classList.remove('running'); display.classList.add('pulsing');
     ringProg.classList.add('done'); doneGlow.classList.add('show');
     pauseBtn.style.display='none';
+    // Record completed session
+    if (!sessionRecorded) {
+      sessionRecorded = true;
+      const minutes = Math.round(totalSeconds / 60);
+      recordSession(minutes);
+    }
     showQuote(); playBell();
   }
 
-  // Bell
-  function strikeBell(t) {
-    const freqs=[220,440,659,880], decays=[4.5,3.2,2.4,1.8];
-    freqs.forEach((freq,i)=>{
-      const osc=audioCtx.createOscillator(), gain=audioCtx.createGain(), f=audioCtx.createBiquadFilter();
-      osc.type='sine';
-      osc.frequency.setValueAtTime(freq,t);
-      osc.frequency.exponentialRampToValueAtTime(freq*0.998,t+decays[i]);
-      f.type='lowpass'; f.frequency.value=2000;
-      const vol=i===0?0.22:0.08/i;
-      gain.gain.setValueAtTime(0,t);
-      gain.gain.linearRampToValueAtTime(vol,t+0.01);
-      gain.gain.exponentialRampToValueAtTime(0.0001,t+decays[i]);
-      osc.connect(f); f.connect(gain); gain.connect(audioCtx.destination);
-      osc.start(t); osc.stop(t+decays[i]);
-    });
-    const et=t+1.5;
-    [220,440].forEach((freq,i)=>{
-      const osc=audioCtx.createOscillator(), gain=audioCtx.createGain();
-      osc.type='sine'; osc.frequency.setValueAtTime(freq,et);
-      gain.gain.setValueAtTime(0,et);
-      gain.gain.linearRampToValueAtTime(i===0?0.1:0.04,et+0.015);
-      gain.gain.exponentialRampToValueAtTime(0.0001,et+3);
-      osc.connect(gain); gain.connect(audioCtx.destination);
-      osc.start(et); osc.stop(et+3);
-    });
-  }
-
+  // Bell — plays meditasjonslyd.mp3 from the same folder
   function playBell() {
-    if (!audioCtx) return;
-    const now=audioCtx.currentTime;
-    strikeBell(now); strikeBell(now+3); strikeBell(now+6);
+    const audio = new Audio('meditasjonslyd.mp3');
+    audio.play().catch(e => console.warn('Kunne ikke spille av lyd:', e));
   }
 </script>
 </body>
