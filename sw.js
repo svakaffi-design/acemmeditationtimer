@@ -1,4 +1,4 @@
-const CACHE = 'acem-timer-v1';
+const CACHE = 'acem-timer-v3';
 const ASSETS = [
   '/',
   '/index.html',
