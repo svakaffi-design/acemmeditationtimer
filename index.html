@@ -316,7 +316,7 @@
 <script type="module">
   import { initializeApp }
     from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, setDoc, onSnapshot, runTransaction, collection, getDocs, query, orderBy, limit }
+  import { getFirestore, doc, getDoc, setDoc, onSnapshot, runTransaction, collection }
     from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
   // ── Firebase ──────────────────────────────────────────
@@ -329,29 +329,15 @@
     appId:             "1:6885818187:web:1f4c7f302a204af566f2ce"
   });
   const db = getFirestore(app);
-
   const QUOTES_DOC = doc(db, "config", "quotes");
-  const STATS_COL  = collection(db, "stats"); // doc per day: "2025-03-08"
 
+  // ── Helpers ───────────────────────────────────────────
   function todayKey() {
     const d = new Date();
     return d.getFullYear() + '-' +
       String(d.getMonth()+1).padStart(2,'0') + '-' +
       String(d.getDate()).padStart(2,'0');
   }
-
-  // ── Sync status ───────────────────────────────────────
-  function setStatus(msg, cls) {
-    const el = document.getElementById('syncStatus');
-    el.textContent = msg;
-    el.className = 'sync-status' + (cls ? ' '+cls : '');
-  }
-
-  // ── Stats ─────────────────────────────────────────────
-  let statsCache = {};   // dateKey → {sessions, totalMinutes}
-  let statsOffset = 0;   // 0 = today, -1 = yesterday, etc.
-  let availableDays = [];
-
   function dateKeyOffset(offset) {
     const d = new Date();
     d.setDate(d.getDate() + offset);
@@ -359,19 +345,34 @@
       String(d.getMonth()+1).padStart(2,'0') + '-' +
       String(d.getDate()).padStart(2,'0');
   }
+  function setStatus(msg, cls) {
+    const el = document.getElementById('syncStatus');
+    el.textContent = msg;
+    el.className = 'sync-status' + (cls ? ' '+cls : '');
+  }
+  function dbg(msg) {
+    const el = document.getElementById('debugLog');
+    if (!el) return;
+    const time = new Date().toLocaleTimeString('no');
+    el.textContent = '[' + time + '] ' + msg + '\n' + el.textContent;
+    console.log('[ACEM]', msg);
+  }
+  function fmt(s) {
+    return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+  }
+
+  // ── Stats ─────────────────────────────────────────────
+  let statsCache = {}, statsOffset = 0;
 
   function formatDateLabel(key) {
     const [y, m, d] = key.split('-').map(Number);
     const date = new Date(y, m-1, d);
     const days = ['søndag','mandag','tirsdag','onsdag','torsdag','fredag','lørdag'];
     const months = ['jan','feb','mar','apr','mai','jun','jul','aug','sep','okt','nov','des'];
-    const today = todayKey();
-    const yest = dateKeyOffset(-1);
-    if (key === today) return 'I dag';
-    if (key === yest) return 'I går';
+    if (key === todayKey()) return 'I dag';
+    if (key === dateKeyOffset(-1)) return 'I går';
     return days[date.getDay()] + ' ' + d + '. ' + months[m-1];
   }
-
   async function loadStats(key) {
     if (statsCache[key]) return statsCache[key];
     try {
@@ -379,97 +380,55 @@
       const data = snap.exists() ? snap.data() : { sessions: 0, totalMinutes: 0 };
       statsCache[key] = data;
       return data;
-    } catch(e) {
-      return { sessions: 0, totalMinutes: 0 };
-    }
+    } catch(e) { return { sessions: 0, totalMinutes: 0 }; }
   }
-
   async function renderStats() {
     const key = dateKeyOffset(statsOffset);
     const data = await loadStats(key);
     const sessions = data.sessions || 0;
     const totalMin = data.totalMinutes || 0;
     const avg = sessions > 0 ? Math.round(totalMin / sessions) : 0;
-
     document.getElementById('statsDate').textContent = formatDateLabel(key);
     document.getElementById('statsNext').disabled = statsOffset >= 0;
-
     document.getElementById('statsContent').innerHTML = `
       <div class="stats-grid">
-        <div class="stat-cell">
-          <div class="stat-value">${sessions}</div>
-          <div class="stat-label">Brukere</div>
-        </div>
-        <div class="stat-cell">
-          <div class="stat-value">${avg}</div>
-          <div class="stat-label">Snitt min</div>
-        </div>
-        <div class="stat-cell">
-          <div class="stat-value">${totalMin}</div>
-          <div class="stat-label">Total min</div>
-        </div>
+        <div class="stat-cell"><div class="stat-value">${sessions}</div><div class="stat-label">Brukere</div></div>
+        <div class="stat-cell"><div class="stat-value">${avg}</div><div class="stat-label">Snitt min</div></div>
+        <div class="stat-cell"><div class="stat-value">${totalMin}</div><div class="stat-label">Total min</div></div>
       </div>`;
   }
-
   async function recordSession(minutes) {
-    if (minutes < 1) { dbg('Avbrutt: minutter < 1 (' + minutes + ')'); return; }
+    if (minutes < 1) { dbg('Avbrutt: min < 1'); return; }
     const key = todayKey();
     const ref = doc(db, "stats", key);
-    dbg('Skriver til stats/' + key + ' (' + minutes + ' min)...');
+    dbg('Skriver ' + minutes + ' min til stats/' + key);
     setStatus('lagrer...', 'syncing');
     try {
       await runTransaction(db, async tx => {
         const snap = await tx.get(ref);
         if (snap.exists()) {
           const prev = snap.data();
-          dbg('Eksisterende data: ' + JSON.stringify(prev));
-          tx.update(ref, {
-            sessions:     (prev.sessions || 0) + 1,
-            totalMinutes: (prev.totalMinutes || 0) + minutes
-          });
+          tx.update(ref, { sessions: (prev.sessions||0)+1, totalMinutes: (prev.totalMinutes||0)+minutes });
         } else {
-          dbg('Ingen eksisterende data – oppretter ny');
           tx.set(ref, { sessions: 1, totalMinutes: minutes });
         }
       });
       dbg('✓ Lagret!');
-      setStatus('lagret', '');
-      setTimeout(() => setStatus(''), 2000);
+      setStatus('lagret',''); setTimeout(()=>setStatus(''), 2000);
       delete statsCache[key];
       if (statsOffset === 0) await renderStats();
     } catch(e) {
       dbg('✗ FEIL: ' + e.code + ' – ' + e.message);
-      console.error('Stats write failed:', e);
       setStatus('feil: ' + e.code, 'error');
     }
   }
 
-  // ── Debug log ─────────────────────────────────────────
-  function dbg(msg) {
-    const el = document.getElementById('debugLog');
-    const time = new Date().toLocaleTimeString('no');
-    el.textContent = '[' + time + '] ' + msg + '\n' + el.textContent;
-    console.log('[ACEM]', msg);
-  }
-
-  // Test button
-  document.getElementById('testStatsBtn').addEventListener('click', () => {
-    dbg('Tester skriving til Firestore...');
-    recordSession(1);
-  });
-
-
-  document.getElementById('statsPrev').addEventListener('click', () => {
-    statsOffset--;
-    renderStats();
-  });
-  document.getElementById('statsNext').addEventListener('click', () => {
-    if (statsOffset < 0) { statsOffset++; renderStats(); }
-  });
-
+  document.getElementById('statsPrev').addEventListener('click', () => { statsOffset--; renderStats(); });
+  document.getElementById('statsNext').addEventListener('click', () => { if(statsOffset<0){statsOffset++;renderStats();} });
+  document.getElementById('testStatsBtn').addEventListener('click', () => { dbg('Tester...'); recordSession(1); });
   renderStats();
 
-  // ── Default quotes ────────────────────────────────────
+  // ── Quotes ────────────────────────────────────────────
   const DEFAULT_LINES = [
     "Du kan ikke stoppe bølgene, men du kan lære å surfe — Jon Kabat-Zinn",
     "Det eneste øyeblikket du noen gang vil ha er dette — Thich Nhat Hanh",
@@ -497,13 +456,9 @@
     "Å gi slipp er ikke å tape. Det er å vinne frihet — Thich Nhat Hanh",
     "Jo mer rolig et menneske er, desto større er dets suksess — James Allen",
   ];
-
-  // ── Quotes ────────────────────────────────────────────
-  let QUOTES = [];
-  let lastQuoteIndex = -1;
-
+  let QUOTES = [], lastQuoteIndex = -1;
   function parseLines(lines) {
-    return lines.map(l => l.trim()).filter(Boolean).map(l => {
+    return lines.map(l=>l.trim()).filter(Boolean).map(l => {
       const i = l.lastIndexOf(' — ');
       if (i !== -1) return { text: l.slice(0,i).trim(), author: l.slice(i+3).trim() };
       const j = l.lastIndexOf(' - ');
@@ -511,47 +466,82 @@
       return { text: l, author: '' };
     });
   }
-
   onSnapshot(QUOTES_DOC, snap => {
-    if (snap.exists()) {
-      QUOTES = parseLines(snap.data().lines || []);
-    } else {
-      setDoc(QUOTES_DOC, { lines: DEFAULT_LINES }).catch(()=>{});
-      QUOTES = parseLines(DEFAULT_LINES);
-    }
+    QUOTES = parseLines(snap.exists() ? (snap.data().lines||[]) : DEFAULT_LINES);
+    if (!snap.exists()) setDoc(QUOTES_DOC, { lines: DEFAULT_LINES }).catch(()=>{});
     showQuote();
   }, () => {
     if (!QUOTES.length) QUOTES = parseLines(DEFAULT_LINES);
-    setStatus('frakoblet','error');
-    showQuote();
+    setStatus('frakoblet','error'); showQuote();
   });
-
   function showQuote() {
     if (!QUOTES.length) return;
     let idx;
-    do { idx = Math.floor(Math.random() * QUOTES.length); }
+    do { idx = Math.floor(Math.random()*QUOTES.length); }
     while (QUOTES.length > 1 && idx === lastQuoteIndex);
     lastQuoteIndex = idx;
     const q = QUOTES[idx];
     const area = document.getElementById('quoteArea');
     area.classList.remove('visible');
     setTimeout(() => {
-      document.getElementById('quoteText').textContent   = '\u201C' + q.text + '\u201D';
+      document.getElementById('quoteText').textContent = '\u201C'+q.text+'\u201D';
       document.getElementById('quoteAuthor').textContent = q.author ? '— '+q.author : '';
       area.classList.add('visible');
     }, 500);
   }
-  function hideQuote() {
-    document.getElementById('quoteArea').classList.remove('visible');
-  }
+  function hideQuote() { document.getElementById('quoteArea').classList.remove('visible'); }
 
+  // ── Audio ─────────────────────────────────────────────
+  // Playing a silent loop via Web Audio keeps iOS from freezing JS during sleep
+  let audioCtx = null, silentSource = null, bellAudio = null;
+  function getAudioCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    return audioCtx;
+  }
+  function startSilentLoop() {
+    if (silentSource) return;
+    const ctx = getAudioCtx();
+    if (ctx.state === 'suspended') ctx.resume();
+    const buf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < ctx.sampleRate; i++) data[i] = (Math.random()*2-1)*0.001;
+    silentSource = ctx.createBufferSource();
+    silentSource.buffer = buf;
+    silentSource.loop = true;
+    silentSource.connect(ctx.destination);
+    silentSource.start();
+  }
+  function stopSilentLoop() {
+    if (silentSource) { try { silentSource.stop(); } catch(e){} silentSource = null; }
+  }
+  function preloadAudio() {
+    getAudioCtx();
+    if (bellAudio) return;
+    bellAudio = new Audio('meditasjonslyd.mp3');
+    bellAudio.load();
+  }
+  function playBell() {
+    fetch('meditasjonslyd.mp3')
+      .then(r=>r.arrayBuffer())
+      .then(buf=>getAudioCtx().decodeAudioData(buf))
+      .then(decoded=>{
+        const src = getAudioCtx().createBufferSource();
+        src.buffer = decoded;
+        src.connect(getAudioCtx().destination);
+        src.start();
+      })
+      .catch(()=>{
+        if (!bellAudio) bellAudio = new Audio('meditasjonslyd.mp3');
+        bellAudio.currentTime = 0;
+        bellAudio.play().catch(()=>{});
+      });
+  }
 
   // ── Timer ─────────────────────────────────────────────
   const CIRCUMFERENCE = 2 * Math.PI * 138;
   let totalSeconds = 0, remaining = 0, interval = null;
-  let running = false, editing = false;
-  let sessionRecorded = false;
-  let bellAudio = null; // preloaded on first user tap
+  let running = false, editing = false, sessionRecorded = false;
+  let startTimestamp = null, remainingAtStart = 0;
 
   const display  = document.getElementById('timerDisplay');
   const editWrap = document.getElementById('timerEditWrap');
@@ -569,73 +559,68 @@
   ringProg.style.strokeDasharray  = CIRCUMFERENCE;
   ringProg.style.strokeDashoffset = 0;
 
-  function fmt(s) {
-    return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
-  }
   function updateRing(rem, total) {
     ringProg.style.strokeDashoffset = CIRCUMFERENCE * (1-(total>0?rem/total:1));
   }
-
-  // ── Audio system ──────────────────────────────────────
-  // iOS freezes JS when screen locks UNLESS Web Audio is actively running.
-  // We play a silent 1-second loop via Web Audio from the moment timer starts.
-  // This keeps the audio context alive, prevents JS suspension, and lets
-  // visibilitychange + the wall-clock tick fire correctly when screen unlocks.
-
-  let audioCtx = null;
-  let silentSource = null;
-  let bellAudio = null;
-
-  function getAudioCtx() {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    return audioCtx;
+  function startInterval() {
+    startTimestamp = Date.now();
+    remainingAtStart = remaining;
+    interval = setInterval(tick, 500);
   }
-
-  // Create a 1-second buffer of near-silence (volume 0.001 — inaudible)
-  function startSilentLoop() {
-    if (silentSource) return;
-    const ctx = getAudioCtx();
-    if (ctx.state === 'suspended') ctx.resume();
-    const bufferSize = ctx.sampleRate; // 1 second
-    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * 0.001;
-    silentSource = ctx.createBufferSource();
-    silentSource.buffer = buffer;
-    silentSource.loop = true;
-    silentSource.connect(ctx.destination);
-    silentSource.start();
+  function stopInterval() {
+    clearInterval(interval); interval = null; startTimestamp = null;
   }
-
-  function stopSilentLoop() {
-    if (silentSource) { try { silentSource.stop(); } catch(e) {} silentSource = null; }
+  function tick() {
+    if (!startTimestamp) return;
+    const elapsed = Math.floor((Date.now()-startTimestamp)/1000);
+    remaining = remainingAtStart - elapsed;
+    if (remaining <= 0) {
+      remaining = 0; display.textContent = fmt(0);
+      updateRing(0, totalSeconds); stopInterval(); running = false; finish();
+    } else {
+      display.textContent = fmt(remaining); updateRing(remaining, totalSeconds);
+    }
   }
-
-  // Preload bell audio on first user tap (required by iOS)
-  function preloadAudio() {
-    getAudioCtx(); // create context while inside user gesture
-    if (bellAudio) return;
-    bellAudio = new Audio('meditasjonslyd.mp3');
-    bellAudio.load();
+  document.addEventListener('visibilitychange', () => {
+    if (!running || document.hidden || !startTimestamp) return;
+    const elapsed = Math.floor((Date.now()-startTimestamp)/1000);
+    remaining = remainingAtStart - elapsed;
+    if (remaining <= 0) {
+      remaining = 0; stopInterval(); running = false; finish();
+    } else {
+      display.textContent = fmt(remaining); updateRing(remaining, totalSeconds);
+    }
+  });
+  function finish() {
+    stopSilentLoop();
+    document.getElementById('sleepWarning').style.display='none';
+    display.textContent='00:00'; label.textContent='fullført';
+    display.classList.remove('running'); display.classList.add('pulsing');
+    ringProg.classList.add('done'); doneGlow.classList.add('show');
+    pauseBtn.style.display='none';
+    if (!sessionRecorded) {
+      sessionRecorded = true;
+      recordSession(Math.round(totalSeconds/60));
+    }
+    showQuote(); playBell();
   }
 
   // Edit timer
   function enterEdit() {
     if (running||editing) return;
-    editing=true;
-    editMin.value=String(Math.floor(remaining/60)).padStart(2,'0');
-    editSec.value=String(remaining%60).padStart(2,'0');
+    editing = true;
+    editMin.value = String(Math.floor(remaining/60)).padStart(2,'0');
+    editSec.value = String(remaining%60).padStart(2,'0');
     display.style.display='none'; editWrap.classList.add('active');
     editHint.style.opacity='0'; editMin.focus(); editMin.select();
-
   }
   function commitEdit() {
-    if (!editing) return; editing=false;
-    const m=Math.max(0,Math.min(99,parseInt(editMin.value)||0));
-    const s=Math.max(0,Math.min(59,parseInt(editSec.value)||0));
-    const total=m*60+s;
+    if (!editing) return; editing = false;
+    const m = Math.max(0,Math.min(99,parseInt(editMin.value)||0));
+    const s = Math.max(0,Math.min(59,parseInt(editSec.value)||0));
+    const total = m*60+s;
     editWrap.classList.remove('active'); display.style.display=''; editHint.style.opacity='1';
-    if (total>0) {
+    if (total > 0) {
       totalSeconds=total; remaining=total;
       display.textContent=fmt(remaining); startBtn.disabled=false;
       label.textContent=m+(s>0?':'+String(s).padStart(2,'0'):'')+' minutter';
@@ -695,20 +680,16 @@
     startBtn.style.display='none'; pauseBtn.style.display=''; resetBtn.style.display='';
     editHint.style.opacity='0';
     document.getElementById('sleepWarning').style.display='block';
-    showQuote();
-    startSilentLoop();
-    startInterval();
+    showQuote(); startSilentLoop(); startInterval();
   });
 
   // Pause
   pauseBtn.addEventListener('click',()=>{
     if(!running){
       running=true; pauseBtn.textContent='pause'; label.textContent='mediterer';
-      startSilentLoop();
-      startInterval();
+      startSilentLoop(); startInterval();
     } else {
-      running=false; stopInterval();
-      stopSilentLoop();
+      running=false; stopInterval(); stopSilentLoop();
       pauseBtn.textContent='fortsett'; label.textContent='pause';
     }
   });
@@ -728,93 +709,6 @@
     hideQuote();
   });
 
-  // ── Sleep-safe timer ─────────────────────────────────
-  // Uses real wall-clock timestamps so phone sleep doesn't lose time
-  let startTimestamp = null;   // Date.now() when timer started
-  let remainingAtStart = 0;    // remaining seconds when started/resumed
-
-  function startInterval() {
-    startTimestamp = Date.now();
-    remainingAtStart = remaining;
-    interval = setInterval(tick, 500); // check every 500ms for responsiveness
-  }
-
-  function stopInterval() {
-    clearInterval(interval);
-    interval = null;
-    startTimestamp = null;
-  }
-
-  // Tick — recalculates from wall clock, immune to sleep drift
-  function tick() {
-    if (!startTimestamp) return;
-    const elapsed = Math.floor((Date.now() - startTimestamp) / 1000);
-    remaining = remainingAtStart - elapsed;
-    if (remaining <= 0) {
-      remaining = 0;
-      display.textContent = fmt(0);
-      updateRing(0, totalSeconds);
-      stopInterval();
-      running = false;
-      finish();
-    } else {
-      display.textContent = fmt(remaining);
-      updateRing(remaining, totalSeconds);
-    }
-  }
-
-  // Wake up after sleep — recalculate immediately when screen comes back
-  document.addEventListener('visibilitychange', () => {
-    if (!running || document.hidden) return;
-    if (startTimestamp) {
-      const elapsed = Math.floor((Date.now() - startTimestamp) / 1000);
-      remaining = remainingAtStart - elapsed;
-      if (remaining <= 0) {
-        remaining = 0;
-        stopInterval();
-        running = false;
-        finish();
-      } else {
-        display.textContent = fmt(remaining);
-        updateRing(remaining, totalSeconds);
-      }
-    }
-  });
-
-  function finish() {
-    stopSilentLoop();
-    document.getElementById('sleepWarning').style.display='none';
-    display.textContent='00:00'; label.textContent='fullført';
-    display.classList.remove('running'); display.classList.add('pulsing');
-    ringProg.classList.add('done'); doneGlow.classList.add('show');
-    pauseBtn.style.display='none';
-    if (!sessionRecorded) {
-      sessionRecorded = true;
-      const minutes = Math.round(totalSeconds / 60);
-      recordSession(minutes);
-    }
-    showQuote(); playBell();
-  }
-
-  // Bell — uses Web Audio to decode + play mp3 (works after screen unlock on iOS)
-  function playBell() {
-    // Try Web Audio first (most reliable after sleep)
-    fetch('meditasjonslyd.mp3')
-      .then(r => r.arrayBuffer())
-      .then(buf => getAudioCtx().decodeAudioData(buf))
-      .then(decoded => {
-        const src = getAudioCtx().createBufferSource();
-        src.buffer = decoded;
-        src.connect(getAudioCtx().destination);
-        src.start();
-      })
-      .catch(() => {
-        // Fallback to HTML Audio
-        if (!bellAudio) bellAudio = new Audio('meditasjonslyd.mp3');
-        bellAudio.currentTime = 0;
-        bellAudio.play().catch(e => console.warn('Lyd feilet:', e));
-      });
-  }
   // ── PWA Service Worker ────────────────────────────────
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
