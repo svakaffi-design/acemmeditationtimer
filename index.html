@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACEM Meditation Timer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Cormorant+SC:wght@300&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #000;
+    color: #fff;
+    font-family: 'Cormorant Garamond', serif;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  .ambient {
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse 60% 50% at 50% 50%, #0a0a0a 0%, #000 100%);
+    pointer-events: none;
+  }
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 36px;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 620px;
+    padding: 0 24px;
+  }
+
+  /* ── Title ── */
+  .title {
+    font-family: 'Cormorant SC', serif;
+    font-weight: 300;
+    font-size: 22px;
+    letter-spacing: 10px;
+    color: rgba(255,255,255,0.45);
+  }
+
+  /* ── Status label ── */
+  .label {
+    font-family: 'Cormorant SC', serif;
+    font-weight: 300;
+    font-size: 11px;
+    letter-spacing: 6px;
+    color: rgba(255,255,255,0.25);
+    text-transform: uppercase;
+    transition: color 0.8s ease;
+    min-height: 16px;
+  }
+  .label.active { color: rgba(255,255,255,0.45); }
+
+  /* ── Ring & timer ── */
+  .ring-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+
+  svg.ring {
+    position: absolute;
+    transform: rotate(-90deg);
+    opacity: 0;
+    transition: opacity 1s ease;
+  }
+  svg.ring.visible { opacity: 1; }
+  .ring-track { fill: none; stroke: rgba(255,255,255,0.05); }
+  .ring-progress {
+    fill: none; stroke: rgba(255,255,255,0.18);
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s linear, stroke 0.5s ease;
+  }
+  .ring-progress.done { stroke: rgba(255,255,255,0.5); }
+
+  .timer-display {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(80px, 18vw, 160px);
+    letter-spacing: -2px;
+    line-height: 1;
+    color: #fff;
+    cursor: text;
+    transition: color 0.3s ease;
+    position: relative;
+  }
+  .timer-display:hover:not(.no-edit) { color: rgba(255,255,255,0.65); }
+  .timer-display.running::after {
+    content: '';
+    position: absolute;
+    bottom: -8px; left: 50%;
+    transform: translateX(-50%);
+    width: 1px; height: 40px;
+    background: rgba(255,255,255,0.15);
+  }
+
+  .timer-edit-wrap { display: none; align-items: center; }
+  .timer-edit-wrap.active { display: flex; }
+
+  .time-part {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(80px, 18vw, 160px);
+    letter-spacing: -2px;
+    line-height: 1;
+    background: none; border: none;
+    border-bottom: 1px solid rgba(255,255,255,0.25);
+    color: #fff; text-align: center; outline: none;
+    caret-color: rgba(255,255,255,0.6);
+    width: 2.2ch;
+  }
+  .time-sep {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(80px, 18vw, 160px);
+    color: rgba(255,255,255,0.35);
+    line-height: 1; padding: 0 2px; margin-bottom: 6px;
+  }
+
+  .edit-hint {
+    font-family: 'Cormorant SC', serif;
+    font-size: 10px; letter-spacing: 4px;
+    color: rgba(255,255,255,0.15);
+    transition: opacity 0.4s ease;
+  }
+
+  /* ── Quote ── */
+  .quote-area {
+    text-align: center;
+    min-height: 66px;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 8px;
+    opacity: 0;
+    transition: opacity 1.4s ease;
+  }
+  .quote-area.visible { opacity: 1; }
+
+  .quote-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300; font-style: italic;
+    font-size: 17px; line-height: 1.65;
+    color: rgba(255,255,255,0.5);
+  }
+  .quote-author {
+    font-family: 'Cormorant SC', serif;
+    font-weight: 300; font-size: 10px;
+    letter-spacing: 4px; color: rgba(255,255,255,0.2);
+  }
+
+  /* ── Presets ── */
+  .presets {
+    display: flex; gap: 20px;
+    flex-wrap: wrap; justify-content: center;
+    max-width: 500px;
+  }
+  .preset-btn {
+    background: none; border: none;
+    color: rgba(255,255,255,0.2);
+    font-family: 'Cormorant SC', serif;
+    font-size: 13px; letter-spacing: 3px;
+    cursor: pointer; padding: 6px 4px;
+    transition: color 0.4s ease; position: relative;
+  }
+  .preset-btn::after {
+    content: ''; position: absolute;
+    bottom: 0; left: 0; width: 0; height: 1px;
+    background: rgba(255,255,255,0.4);
+    transition: width 0.4s ease;
+  }
+  .preset-btn:hover { color: rgba(255,255,255,0.6); }
+  .preset-btn:hover::after { width: 100%; }
+  .preset-btn.selected { color: rgba(255,255,255,0.85); }
+  .preset-btn.selected::after { width: 100%; background: rgba(255,255,255,0.6); }
+
+  /* ── Controls ── */
+  .controls { display: flex; gap: 32px; align-items: center; }
+  .ctrl-btn {
+    background: none; border: none;
+    color: rgba(255,255,255,0.3);
+    font-family: 'Cormorant SC', serif;
+    font-size: 11px; letter-spacing: 5px;
+    cursor: pointer; padding: 8px 0;
+    transition: color 0.4s ease; text-transform: uppercase;
+  }
+  .ctrl-btn:hover { color: rgba(255,255,255,0.7); }
+  .ctrl-btn.primary { color: rgba(255,255,255,0.55); font-size: 12px; }
+  .ctrl-btn.primary:hover { color: #fff; }
+  .ctrl-btn:disabled { opacity: 0.2; pointer-events: none; }
+
+  /* ── Edit quotes button ── */
+  .edit-quotes-btn {
+    position: fixed; bottom: 24px; right: 28px;
+    background: none; border: none;
+    font-family: 'Cormorant SC', serif;
+    font-size: 10px; letter-spacing: 4px;
+    color: rgba(255,255,255,0.12);
+    cursor: pointer; text-transform: uppercase;
+    transition: color 0.3s ease;
+  }
+  .edit-quotes-btn:hover { color: rgba(255,255,255,0.4); }
+
+  /* ── Quote editor modal ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 100; align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: #0d0d0d;
+    border: 1px solid rgba(255,255,255,0.08);
+    width: min(680px, 94vw);
+    max-height: 80vh;
+    display: flex; flex-direction: column;
+    padding: 36px;
+    gap: 20px;
+  }
+
+  .modal-title {
+    font-family: 'Cormorant SC', serif;
+    font-size: 13px; letter-spacing: 6px;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+  }
+
+  .modal-desc {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px; font-style: italic;
+    color: rgba(255,255,255,0.3);
+    line-height: 1.6;
+  }
+
+  .quotes-textarea {
+    flex: 1;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.7);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px; line-height: 1.8;
+    padding: 16px; resize: none; outline: none;
+    min-height: 300px;
+    overflow-y: auto;
+  }
+  .quotes-textarea::placeholder { color: rgba(255,255,255,0.15); }
+  .quotes-textarea:focus { border-color: rgba(255,255,255,0.18); }
+
+  .modal-actions { display: flex; gap: 20px; justify-content: flex-end; }
+
+  .modal-btn {
+    background: none; border: none;
+    font-family: 'Cormorant SC', serif;
+    font-size: 11px; letter-spacing: 5px;
+    cursor: pointer; padding: 8px 0;
+    text-transform: uppercase; transition: color 0.3s ease;
+  }
+  .modal-btn.cancel { color: rgba(255,255,255,0.25); }
+  .modal-btn.cancel:hover { color: rgba(255,255,255,0.5); }
+  .modal-btn.save { color: rgba(255,255,255,0.6); }
+  .modal-btn.save:hover { color: #fff; }
+
+  .modal-count {
+    font-family: 'Cormorant SC', serif;
+    font-size: 10px; letter-spacing: 3px;
+    color: rgba(255,255,255,0.18);
+    align-self: center; margin-right: auto;
+  }
+
+  /* ── Done glow ── */
+  .done-glow {
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(255,255,255,0.03) 0%, transparent 70%);
+    pointer-events: none; opacity: 0; transition: opacity 2s ease;
+  }
+  .done-glow.show { opacity: 1; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 1; }
+  }
+  .pulsing { animation: pulse 3s ease-in-out infinite; }
+</style>
+</head>
+<body>
+
+<div class="ambient"></div>
+<div class="done-glow" id="doneGlow"></div>
+
+<div class="container">
+  <div class="title">ACEM Meditation Timer</div>
+  <div class="label" id="stateLabel">velg varighet</div>
+
+  <div class="ring-wrapper">
+    <svg class="ring" id="progressRing" width="300" height="300" viewBox="0 0 300 300">
+      <circle class="ring-track" cx="150" cy="150" r="138" stroke-width="1"/>
+      <circle class="ring-progress" id="ringProgress" cx="150" cy="150" r="138"
+        stroke-width="1" stroke-dasharray="867" stroke-dashoffset="0"/>
+    </svg>
+    <div class="timer-display" id="timerDisplay">00:00</div>
+    <div class="timer-edit-wrap" id="timerEditWrap">
+      <input class="time-part" id="editMin" type="text" maxlength="2" value="00" inputmode="numeric"/>
+      <span class="time-sep">:</span>
+      <input class="time-part" id="editSec" type="text" maxlength="2" value="00" inputmode="numeric"/>
+    </div>
+    <div class="edit-hint" id="editHint">klikk på tiden for å redigere</div>
+  </div>
+
+  <div class="quote-area" id="quoteArea">
+    <div class="quote-text" id="quoteText"></div>
+    <div class="quote-author" id="quoteAuthor"></div>
+  </div>
+
+  <div class="presets">
+    <button class="preset-btn" data-min="10">10</button>
+    <button class="preset-btn" data-min="15">15</button>
+    <button class="preset-btn" data-min="20">20</button>
+    <button class="preset-btn" data-min="25">25</button>
+    <button class="preset-btn" data-min="30">30</button>
+    <button class="preset-btn" data-min="45">45</button>
+    <button class="preset-btn" data-min="60">60</button>
+    <button class="preset-btn" data-min="90">90</button>
+  </div>
+
+  <div class="controls">
+    <button class="ctrl-btn" id="resetBtn" style="display:none">tilbakestill</button>
+    <button class="ctrl-btn primary" id="startBtn" disabled>start</button>
+    <button class="ctrl-btn" id="pauseBtn" style="display:none">pause</button>
+  </div>
+</div>
+
+<button class="edit-quotes-btn" id="editQuotesBtn">rediger sitater</button>
+
+<!-- Quote editor modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-title">Sitat-bibliotek</div>
+    <div class="modal-desc">
+      Ett sitat per linje. Skill sitat og forfatter med en bindestrek: <br>
+      <em>Stillhet er ikke fraværet av noe — Thich Nhat Hanh</em><br>
+      Linjer uten bindestrek vises uten forfatter.
+    </div>
+    <textarea class="quotes-textarea" id="quotesTextarea" spellcheck="false"></textarea>
+    <div class="modal-actions">
+      <span class="modal-count" id="modalCount"></span>
+      <button class="modal-btn cancel" id="modalCancel">avbryt</button>
+      <button class="modal-btn save" id="modalSave">lagre</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Constants ─────────────────────────────────────────
+  const CIRCUMFERENCE = 2 * Math.PI * 138;
+
+  // ── Default quotes ────────────────────────────────────
+  const DEFAULT_QUOTES = [
+    "Du kan ikke stoppe bølgene, men du kan lære å surfe — Jon Kabat-Zinn",
+    "Det eneste øyeblikket du noen gang vil ha er dette — Thich Nhat Hanh",
+    "Still sinnet, og verden vil ordne seg selv — Lao Tzu",
+    "Fred kommer innenfra. Søk den ikke utenfra — Buddha",
+    "Sinnet er alt. Det du tenker, blir du — Buddha",
+    "Pust inn dypt. Du er hjemme — Thich Nhat Hanh",
+    "Bevissthet er den største agenten for forandring — Eckhart Tolle",
+    "Det du søker, søker deg — Rumi",
+    "Naturen skynder seg ikke, likevel blir alt gjort — Lao Tzu",
+    "Slipp taket — og se hva som skjer — Pema Chödrön",
+    "Vær snill, for alle du møter kjemper en hard kamp — Platon",
+    "Selv dette skal gå over — Persisk ordtak",
+    "Hvil i det som er — ACEM",
+    "La tanker komme og gå som skyer på himmelen — ACEM",
+    "I meditasjonen møter du deg selv — ACEM",
+    "Kropp og sinn finner hverandre i stillheten — ACEM",
+    "Det som hviler, vokser — Norsk ordtak",
+    "Livet forstås bakover, men må leves forover — Søren Kierkegaard",
+    "Vær den forandringen du ønsker å se i verden — Mahatma Gandhi",
+    "Øyeblikket blomstrer alltid — Thich Nhat Hanh",
+    "Du er universets øyne som ser seg selv — Alan Watts",
+    "Visdom begynner med undring — Sokrates",
+    "Kjenn deg selv — Sokrates",
+    "Å gi slipp er ikke å tape. Det er å vinne frihet — Thich Nhat Hanh",
+    "Jo mer rolig et menneske er, desto større er dets suksess — James Allen",
+  ];
+
+  // ── Quote storage ─────────────────────────────────────
+  function loadQuotes() {
+    try {
+      const raw = localStorage.getItem('acem_quotes');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch(e) {}
+    return DEFAULT_QUOTES.slice();
+  }
+
+  function saveQuotes(lines) {
+    try { localStorage.setItem('acem_quotes', JSON.stringify(lines)); } catch(e) {}
+  }
+
+  function parseQuotes(lines) {
+    return lines
+      .map(l => l.trim())
+      .filter(l => l.length > 0)
+      .map(l => {
+        const dash = l.lastIndexOf(' — ');
+        if (dash !== -1) return { text: l.slice(0, dash).trim(), author: l.slice(dash + 3).trim() };
+        const dash2 = l.lastIndexOf(' - ');
+        if (dash2 !== -1) return { text: l.slice(0, dash2).trim(), author: l.slice(dash2 + 3).trim() };
+        return { text: l, author: '' };
+      });
+  }
+
+  let QUOTES = parseQuotes(loadQuotes());
+  let lastQuoteIndex = -1;
+
+  function showQuote() {
+    if (QUOTES.length === 0) return;
+    let idx;
+    do { idx = Math.floor(Math.random() * QUOTES.length); } while (QUOTES.length > 1 && idx === lastQuoteIndex);
+    lastQuoteIndex = idx;
+    const q = QUOTES[idx];
+    const area = document.getElementById('quoteArea');
+    area.classList.remove('visible');
+    setTimeout(() => {
+      document.getElementById('quoteText').textContent = '\u201C' + q.text + '\u201D';
+      document.getElementById('quoteAuthor').textContent = q.author ? '— ' + q.author : '';
+      area.classList.add('visible');
+    }, 500);
+  }
+
+  function hideQuote() {
+    document.getElementById('quoteArea').classList.remove('visible');
+  }
+
+  // ── Quote editor ──────────────────────────────────────
+  const editQuotesBtn = document.getElementById('editQuotesBtn');
+  const modalOverlay  = document.getElementById('modalOverlay');
+  const quotesTA      = document.getElementById('quotesTextarea');
+  const modalCancel   = document.getElementById('modalCancel');
+  const modalSave     = document.getElementById('modalSave');
+  const modalCount    = document.getElementById('modalCount');
+
+  function openModal() {
+    const lines = loadQuotes();
+    quotesTA.value = lines.join('\n');
+    updateCount();
+    modalOverlay.classList.add('open');
+    setTimeout(() => quotesTA.focus(), 50);
+  }
+
+  function updateCount() {
+    const n = quotesTA.value.split('\n').filter(l => l.trim()).length;
+    modalCount.textContent = n + ' sitater';
+  }
+
+  quotesTA.addEventListener('input', updateCount);
+
+  editQuotesBtn.addEventListener('click', openModal);
+
+  modalCancel.addEventListener('click', () => modalOverlay.classList.remove('open'));
+
+  modalOverlay.addEventListener('click', e => {
+    if (e.target === modalOverlay) modalOverlay.classList.remove('open');
+  });
+
+  modalSave.addEventListener('click', () => {
+    const lines = quotesTA.value.split('\n').filter(l => l.trim());
+    if (lines.length === 0) return;
+    saveQuotes(lines);
+    QUOTES = parseQuotes(lines);
+    lastQuoteIndex = -1;
+    modalOverlay.classList.remove('open');
+    showQuote();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && modalOverlay.classList.contains('open')) {
+      modalOverlay.classList.remove('open');
+    }
+  });
+
+  // ── Timer state ───────────────────────────────────────
+  let totalSeconds = 0;
+  let remaining    = 0;
+  let interval     = null;
+  let running      = false;
+  let editing      = false;
+  let audioCtx     = null;
+
+  const display   = document.getElementById('timerDisplay');
+  const editWrap  = document.getElementById('timerEditWrap');
+  const editMin   = document.getElementById('editMin');
+  const editSec   = document.getElementById('editSec');
+  const startBtn  = document.getElementById('startBtn');
+  const pauseBtn  = document.getElementById('pauseBtn');
+  const resetBtn  = document.getElementById('resetBtn');
+  const label     = document.getElementById('stateLabel');
+  const editHint  = document.getElementById('editHint');
+  const ring      = document.getElementById('progressRing');
+  const ringProg  = document.getElementById('ringProgress');
+  const doneGlow  = document.getElementById('doneGlow');
+
+  ringProg.style.strokeDasharray = CIRCUMFERENCE;
+  ringProg.style.strokeDashoffset = 0;
+
+  // Show quote on load
+  showQuote();
+
+  // ── Helpers ───────────────────────────────────────────
+  function fmt(s) {
+    const m = Math.floor(s / 60), sec = s % 60;
+    return String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
+  }
+
+  function updateRing(rem, total) {
+    const frac = total > 0 ? rem / total : 1;
+    ringProg.style.strokeDashoffset = CIRCUMFERENCE * (1 - frac);
+  }
+
+  // ── Edit timer ────────────────────────────────────────
+  function enterEdit() {
+    if (running || editing) return;
+    editing = true;
+    editMin.value = String(Math.floor(remaining / 60)).padStart(2, '0');
+    editSec.value = String(remaining % 60).padStart(2, '0');
+    display.style.display = 'none';
+    editWrap.classList.add('active');
+    editHint.style.opacity = '0';
+    editMin.focus(); editMin.select();
+  }
+
+  function commitEdit() {
+    if (!editing) return;
+    editing = false;
+    const m = Math.max(0, Math.min(99, parseInt(editMin.value) || 0));
+    const s = Math.max(0, Math.min(59, parseInt(editSec.value) || 0));
+    const total = m * 60 + s;
+    editWrap.classList.remove('active');
+    display.style.display = '';
+    editHint.style.opacity = '1';
+    if (total > 0) {
+      totalSeconds = total; remaining = total;
+      display.textContent = fmt(remaining);
+      startBtn.disabled = false;
+      label.textContent = m + (s > 0 ? ':' + String(s).padStart(2,'0') : '') + ' minutter';
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('selected'));
+      ring.classList.remove('visible'); ringProg.classList.remove('done');
+      ringProg.style.strokeDashoffset = 0;
+      doneGlow.classList.remove('show');
+      display.classList.remove('pulsing', 'no-edit');
+      resetBtn.style.display = 'none'; pauseBtn.style.display = 'none'; startBtn.style.display = '';
+    } else {
+      display.textContent = fmt(remaining);
+    }
+  }
+
+  function cancelEdit() {
+    editing = false;
+    editWrap.classList.remove('active');
+    display.style.display = '';
+    editHint.style.opacity = '1';
+    display.textContent = fmt(remaining);
+  }
+
+  display.addEventListener('click', enterEdit);
+  editMin.addEventListener('input', () => {
+    editMin.value = editMin.value.replace(/\D/g, '');
+    if (editMin.value.length === 2) { editSec.focus(); editSec.select(); }
+  });
+  editSec.addEventListener('input', () => { editSec.value = editSec.value.replace(/\D/g, ''); });
+  editMin.addEventListener('keydown', e => {
+    if (e.key === ':' || e.key === 'Tab') { e.preventDefault(); editSec.focus(); editSec.select(); }
+    if (e.key === 'Enter') commitEdit();
+    if (e.key === 'Escape') cancelEdit();
+  });
+  editSec.addEventListener('keydown', e => {
+    if (e.key === 'Enter') commitEdit();
+    if (e.key === 'Escape') cancelEdit();
+    if (e.key === 'Backspace' && editSec.value === '') { editMin.focus(); editMin.select(); }
+  });
+  editMin.addEventListener('blur', () => setTimeout(() => { if (editing && document.activeElement !== editSec) commitEdit(); }, 120));
+  editSec.addEventListener('blur', () => setTimeout(() => { if (editing && document.activeElement !== editMin) commitEdit(); }, 120));
+
+  // ── Presets ───────────────────────────────────────────
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (running) return;
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      const mins = parseInt(btn.dataset.min);
+      totalSeconds = mins * 60; remaining = totalSeconds;
+      display.textContent = fmt(remaining);
+      startBtn.disabled = false;
+      label.textContent = mins + ' minutter';
+      ring.classList.remove('visible'); ringProg.classList.remove('done');
+      ringProg.style.strokeDashoffset = 0;
+      doneGlow.classList.remove('show');
+      display.classList.remove('pulsing', 'no-edit');
+      resetBtn.style.display = 'none'; pauseBtn.style.display = 'none'; startBtn.style.display = '';
+      editHint.style.opacity = '1';
+    });
+  });
+
+  // ── Start ─────────────────────────────────────────────
+  startBtn.addEventListener('click', () => {
+    if (!remaining || running) return;
+    running = true;
+    display.classList.add('running', 'no-edit');
+    ring.classList.add('visible');
+    label.textContent = 'mediterer'; label.classList.add('active');
+    startBtn.style.display = 'none'; pauseBtn.style.display = ''; resetBtn.style.display = '';
+    editHint.style.opacity = '0';
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    showQuote();
+    interval = setInterval(tick, 1000);
+  });
+
+  // ── Pause ─────────────────────────────────────────────
+  pauseBtn.addEventListener('click', () => {
+    if (!running) {
+      running = true; pauseBtn.textContent = 'pause';
+      label.textContent = 'mediterer';
+      interval = setInterval(tick, 1000);
+    } else {
+      running = false; clearInterval(interval);
+      pauseBtn.textContent = 'fortsett'; label.textContent = 'pause';
+    }
+  });
+
+  // ── Reset ─────────────────────────────────────────────
+  resetBtn.addEventListener('click', () => {
+    clearInterval(interval); running = false;
+    remaining = totalSeconds;
+    display.textContent = fmt(remaining);
+    display.classList.remove('running', 'pulsing', 'no-edit');
+    ring.classList.remove('visible'); ringProg.classList.remove('done');
+    ringProg.style.strokeDashoffset = 0; doneGlow.classList.remove('show');
+    label.textContent = totalSeconds / 60 + ' minutter'; label.classList.remove('active');
+    startBtn.style.display = ''; startBtn.disabled = false;
+    pauseBtn.style.display = 'none'; pauseBtn.textContent = 'pause';
+    resetBtn.style.display = 'none';
+    editHint.style.opacity = '1';
+    hideQuote();
+  });
+
+  // ── Tick ──────────────────────────────────────────────
+  function tick() {
+    remaining--;
+    display.textContent = fmt(remaining);
+    updateRing(remaining, totalSeconds);
+    if (remaining <= 0) { clearInterval(interval); running = false; finish(); }
+  }
+
+  function finish() {
+    display.textContent = '00:00';
+    label.textContent = 'fullført';
+    display.classList.remove('running'); display.classList.add('pulsing');
+    ringProg.classList.add('done'); doneGlow.classList.add('show');
+    pauseBtn.style.display = 'none';
+    showQuote();
+    playBell();
+  }
+
+  // ── Bell ──────────────────────────────────────────────
+  function strikeBell(t) {
+    const freqs = [220, 440, 659, 880], decays = [4.5, 3.2, 2.4, 1.8];
+    freqs.forEach((freq, i) => {
+      const osc = audioCtx.createOscillator(), gain = audioCtx.createGain(), filter = audioCtx.createBiquadFilter();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t);
+      osc.frequency.exponentialRampToValueAtTime(freq * 0.998, t + decays[i]);
+      filter.type = 'lowpass'; filter.frequency.value = 2000;
+      const vol = i === 0 ? 0.22 : 0.08 / i;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(vol, t + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + decays[i]);
+      osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(t); osc.stop(t + decays[i]);
+    });
+    const et = t + 1.5;
+    [220, 440].forEach((freq, i) => {
+      const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+      osc.type = 'sine'; osc.frequency.setValueAtTime(freq, et);
+      gain.gain.setValueAtTime(0, et);
+      gain.gain.linearRampToValueAtTime(i === 0 ? 0.1 : 0.04, et + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, et + 3);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(et); osc.stop(et + 3);
+    });
+  }
+
+  function playBell() {
+    if (!audioCtx) return;
+    const now = audioCtx.currentTime;
+    strikeBell(now); strikeBell(now + 3); strikeBell(now + 6);
+  }
+</script>
+</body>
+</html>
